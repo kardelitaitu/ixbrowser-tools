@@ -1,6 +1,6 @@
 # 🧰 IXBrowser Tools
 
-Useful script collection for interacting with the IX Browser API. Built to optimize performance, enhance privacy, and automate browser workflows.
+Useful script collection for interacting with the IX Browser API. Built to optimize performance, enhance privacy, and automate browser workflows. Extremely useful if you handle hundreds or thousands profile_id
 
 ---
 
