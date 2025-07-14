@@ -70,6 +70,7 @@ profile_0002,domain_2.com,username2,password321
 ### 4. Automation Modules (Phase 4)
 **Focus:** Streamline common tasks and repetitive workflows
 
+- 🔒 Discord Token Extractor
 - 🤖 Form filler & clicker: Smart interaction scripting
 - 📂 Auto-download handler: Custom naming and directory routing
 - 💡 Script injector: Inject custom JS/CSS payloads on launch
