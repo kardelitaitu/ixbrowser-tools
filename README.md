@@ -8,8 +8,26 @@ Useful script collection for interacting with the IX Browser API. Built to optim
 
 ### 1. Custom Browser Launcher (Phase 1)
 **Focus:** Lightweight, customizable, and stealthy launcher for IX-based browsers
+- 🧠 Launcher for specific instances (eg. open profile_0001 to profile_0002)
+- ⌨️ Export Cookies Specific domain
+<pre><code class="language-text">/coookies/
+  ├── profile_0001/│
+     ├── domain_1.json
+     ├── domain_2.json
+     ├── domain_3.json
+     ├── domain_4.json
+  ├── profile_0002/│
+     ├── domain_1.json
+     ├── domain_2.json
+     ├── domain_3.json
+     ├── domain_4.json</code></pre>
 
-- ⌨️ Support CLI & GUI modes (WPF or WinForms)
+- ⌨️ Session Refresh with .csv output
+<pre><code class="language-text">profile_id,domain_1,domain_2,domain_3,domain_4,dateStamp
+profile_0001,valid,expired,valid,valid,14/07/2025
+profile_0002,expired,valid,valid,valid,14/07/2025
+profile_0003,valid,valid,valid,expired,14/07/2025
+</code></pre>
 - 🎨 UI customization: Font, colors, transparency, icons
 - 🧠 Profile injection: Launch with predefined user profiles or sandboxed environments
 - 🔍 Resource presets: Automatically allocate RAM/CPU affinity per instance
