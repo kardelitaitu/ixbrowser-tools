@@ -13,8 +13,9 @@ Useful script collection for interacting with the IX Browser API. Built to optim
 
 ### 1. Custom Browser Launcher (Phase 1)
 > Focus: Lightweight, customizable, and stealthy launcher for IX-based browsers
+- 🧊 Bulk Export All profile_id
 - 🧠 Launcher for specific instances (eg. open profile_0001 to profile_0002)
-- ⌨️ Export Cookies Specific domain via 🍃NodeJs
+- ⌨️ Bulk Export Cookies Specific domain via 🍃NodeJs
 <pre><code class="language-text">/coookies/
   ├── profile_0001/│
      ├── domain_1.json
@@ -40,20 +41,20 @@ profile_0001,domain_2.com,@username1,password456
 profile_0002,domain_1.com,user2#1234,password789
 profile_0002,domain_2.com,username2,password321
 </code></pre>
-- 🧠 Profile injection: Launch with predefined user profiles or sandboxed environments
-- 🔍 Resource presets: Automatically allocate RAM/CPU affinity per instance
-- 🛡️ Privacy toggles: Enable/disable extensions, set proxy/VPN settings
 - 🔗 Multiple instance launching (with unique args or user-agent switching)
 
 ---
 
-### 2. Environment Tuning (Phase 2)
+### 2. More Advanced Tools (Phase 2)
 **Focus:** Prepare the system for optimal performance and privacy
 
-- ⚙️ Scripted cleanup: Temp files, cookies, tracking remnants
-- 🚀 Portable mode support: Zero-install launchers with user profile persistence
-- 🧊 Firejail sandbox profile generation (Linux workflows)
-- 🖥️ DPI-aware display tuning and font rendering enhancements
+- ⚙️ Bulk Import Cookies Specific domain via 🍃NodeJs
+- 🧠 Bulk Import / Export Profiles
+- 🚀 Bulk Enable/Disable extensions
+- 🧊 Custom cache-dir and size limits
+- 🖥️ Resource presets: Automatically allocate RAM/CPU affinity per instance (maybe with .py)
+- 🛡️ Bulk Assign Proxies
+- 🧪 Bulk Proxies Latency Checker
 
 ---
 
