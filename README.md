@@ -14,7 +14,7 @@ Useful script collection for interacting with the IX Browser API. Built to optim
 ### 1. Custom Browser Launcher (Phase 1)
 > Focus: Lightweight, customizable, and stealthy launcher for IX-based browsers
 - 🧊 Bulk Export All profile_id
-- 🧠 Launcher for specific instances (eg. open profile_0001 to profile_0002)
+- 🔗 Multiple instance launching (with unique args or user-agent switching)
 - ⌨️ Bulk Export Cookies Specific domain via 🍃NodeJs
 <pre><code class="language-text">/coookies/
   ├── profile_0001/│
@@ -41,7 +41,6 @@ profile_0001,domain_2.com,@username1,password456
 profile_0002,domain_1.com,user2#1234,password789
 profile_0002,domain_2.com,username2,password321
 </code></pre>
-- 🔗 Multiple instance launching (with unique args or user-agent switching)
 
 ---
 
