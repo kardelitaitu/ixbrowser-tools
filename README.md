@@ -1,13 +1,18 @@
 # 🧰 IXBrowser Tools
 
 Useful script collection for interacting with the IX Browser API. Built to optimize performance, enhance privacy, and automate browser workflows. Extremely useful if you handle hundreds or thousands profile_id
+<div align="center">
+  <img src="https://cdn-icons-png.freepik.com/256/8999/8999462.png" alt="Description" width="250"/>
+</div>
+<div align="center" style="border: 1px solid #ccc; padding: 10px;">
+  This area is actively being developed and improved.
+</div>
 
----
 
-## 🚀 Roadmap: IXBrowser Tools
+# 🚀 Roadmap: IXBrowser Tools
 
 ### 1. Custom Browser Launcher (Phase 1)
-**Focus:** Lightweight, customizable, and stealthy launcher for IX-based browsers
+> Focus: Lightweight, customizable, and stealthy launcher for IX-based browsers
 - 🧠 Launcher for specific instances (eg. open profile_0001 to profile_0002)
 - ⌨️ Export Cookies Specific domain via 🍃NodeJs
 <pre><code class="language-text">/coookies/
@@ -94,8 +99,9 @@ Organize scripts by phase and platform:
 ---
 
 ## ✨ Contributions
-Pull requests are welcome! Feel free to propose new modules or tweak workflows — especially if you’ve got a clever trick for sandboxing, fingerprint defense, or UI hacks.
+Pull requests are welcome! Feel free to propose new modules, idea, tweak workflows — especially if you’ve got a clever trick for sandboxing, fingerprint defense, or UI hacks.
 
+📬 Telegram: [@adikara55](https://t.me/adikara55)
 ---
 
 ## 📄 License
