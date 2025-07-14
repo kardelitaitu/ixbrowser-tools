@@ -9,7 +9,7 @@ Useful script collection for interacting with the IX Browser API. Built to optim
 ### 1. Custom Browser Launcher (Phase 1)
 **Focus:** Lightweight, customizable, and stealthy launcher for IX-based browsers
 - 🧠 Launcher for specific instances (eg. open profile_0001 to profile_0002)
-- ⌨️ Export Cookies Specific domain
+- ⌨️ Export Cookies Specific domain via 🍃NodeJs
 <pre><code class="language-text">/coookies/
   ├── profile_0001/│
      ├── domain_1.json
@@ -22,13 +22,19 @@ Useful script collection for interacting with the IX Browser API. Built to optim
      ├── domain_3.json
      ├── domain_4.json</code></pre>
 
-- ⌨️ Session Refresh with .csv output
+- ⌨️ Session Refresh with .csv output via 🍃NodeJs
 <pre><code class="language-text">profile_id,domain_1,domain_2,domain_3,domain_4,dateStamp
 profile_0001,valid,expired,valid,valid,14/07/2025
 profile_0002,expired,valid,valid,valid,14/07/2025
 profile_0003,valid,valid,valid,expired,14/07/2025
 </code></pre>
-- 🎨 UI customization: Font, colors, transparency, icons
+- 🛡️ ID+Password Injection .txt/.csv via 🍃NodeJs
+<pre><code class="language-text">profile_id,domain,username,password
+profile_0001,domain_1.com,user1@gmail.com,password123
+profile_0001,domain_2.com,@username1,password456
+profile_0002,domain_1.com,user2#1234,password789
+profile_0002,domain_2.com,username2,password321
+</code></pre>
 - 🧠 Profile injection: Launch with predefined user profiles or sandboxed environments
 - 🔍 Resource presets: Automatically allocate RAM/CPU affinity per instance
 - 🛡️ Privacy toggles: Enable/disable extensions, set proxy/VPN settings
