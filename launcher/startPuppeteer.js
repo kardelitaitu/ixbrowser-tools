@@ -27,7 +27,7 @@ async function automateProfile(profile) {
     const page = await browser.newPage();
 
     await automateWallet(page, profile.name); // 🔁 External automation logic
-    await browser.disconnect();
+    //await browser.disconnect();
   } catch (err) {
     console.error(`❌ Failed on ${profile.name}: ${err.message}`);
   }
