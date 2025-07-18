@@ -9,6 +9,7 @@ const urlDelay = 3000;      // Delay between URLs (ms)
 const apiUrl = 'http://127.0.0.1:3000/api/open-url'; // Adjust if needed
 
 // 🧩 Logical profile names to launch
+// googlesheet format ="['" & A2 & "'],"
 const profilePairs = [
   ['Profile001'],
   ['Profile003'],
