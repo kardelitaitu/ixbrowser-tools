@@ -1,5 +1,5 @@
 /*
-puppeteerFollowX.js
+puppeteerFollowTwitter.js
 How to use in main.js:
 
 await followTwitter(page, profileName, 'elonmusk');
