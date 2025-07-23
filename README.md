@@ -73,7 +73,7 @@ profile_0002,domain_2.com,username2,password321
 - 🤖 Form filler & clicker: Smart interaction scripting
 - 📂 Auto-download handler: Custom naming and directory routing
 - 💡 Script injector: Inject custom JS/CSS payloads on launch
-- 🕵️‍♂️ Browser fingerprinting mitigation tools
+- 🕵️‍♂️ Automated Fingerprint Testing (Pixelscan/Browserscan)
 
 ---
 
