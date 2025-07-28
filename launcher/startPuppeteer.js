@@ -8,14 +8,24 @@
  *    2. Launch this script: `node startPuppeteer.js`
  *    3. Script will auto-connect to running profiles and apply automation.
  */
-
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const axios = require('axios');
-const automateWallet = require('./walletImport'); // 🔁 Modular automation logic
-
-puppeteer.use(StealthPlugin()); // 🕵️ Stealth mode
-
+const fs = require('fs');
+const path = require('path');
+puppeteer.use(StealthPlugin()); // 🕵️ Enable stealth mode
+// 📦 Dynamically load all .js modules (excluding this file)
+function loadAutomationModules() {
+  const currentFile = path.basename(__filename);
+  const files = fs.readdirSync(__dirname);
+  return files
+    .filter(file => file.endsWith('.js') && file !== currentFile)
+    .map(file => {
+      const modulePath = path.join(__dirname, file);
+      return require(modulePath);
+    });
+}
+const automationModules = loadAutomationModules(); // 🧠 Grab all logic modules
 // 🔍 Fetch all running profiles with valid WebSocket endpoints
 async function getRunningProfiles() {
   try {
@@ -30,7 +40,6 @@ async function getRunningProfiles() {
     return [];
   }
 }
-
 // 🧠 Run automation logic on a single profile
 async function automateProfile(profile) {
   try {
@@ -44,7 +53,6 @@ async function automateProfile(profile) {
     throw new Error(`Failed on ${profile.name}: ${err.message}`);
   }
 }
-
 // 🚀 Attach to all profiles and automate
 (async () => {
   const profiles = await getRunningProfiles();
@@ -52,9 +60,7 @@ async function automateProfile(profile) {
     console.log('⚠️ No running IXBrowser profiles found.');
     return;
   }
-
   const results = await Promise.allSettled(profiles.map(automateProfile));
-
   results.forEach((result, index) => {
     const name = profiles[index].name;
     if (result.status === 'fulfilled') {
