@@ -8,12 +8,7 @@
  *    2. Launch this script: `node startPuppeteer.js`
  *    3. Script will auto-connect to running profiles and apply automation.
  */
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-puppeteer.use(StealthPlugin()); // 🕵️ Enable stealth mode
+const [puppeteer, StealthPlugin, axios, fs, path] = [require('puppeteer-extra'), require('puppeteer-extra-plugin-stealth'), require('axios'), require('fs'), require('path')]; puppeteer.use(StealthPlugin());
 // 📦 Dynamically load all .js modules (excluding this file)
 function loadAutomationModules() {
   const currentFile = path.basename(__filename);
