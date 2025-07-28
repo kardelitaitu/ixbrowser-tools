@@ -11,8 +11,8 @@
  * @param {Browser} browser - A connected Puppeteer Browser instance.
  *
  * 🔹 Usage:
- * const selectTxtFileAndOpenUrls = require('./selectTxtFileAndOpenUrls');
- * await selectTxtFileAndOpenUrls(browser);
+ * const puppeteerOpenUrlsFromTxt = require('./puppeteerOpenUrlsFromTxt');
+ * await puppeteerOpenUrlsFromTxt(browser);
  *
  * 💡 Note:
  * - Expected environment: CLI with access to stdin/stdout.
@@ -36,7 +36,7 @@ function getUrlsFromFile(filePath) {
 }
 
 // 📦 Main selector logic
-async function selectTxtFileAndOpenUrls(browser) {
+async function puppeteerOpenUrlsFromTxt(browser) {
   const txtFiles = listTxtFiles();
 
   if (txtFiles.length === 0) {
@@ -79,4 +79,4 @@ async function selectTxtFileAndOpenUrls(browser) {
   });
 }
 
-module.exports = selectTxtFileAndOpenUrls;
+module.exports = puppeteerOpenUrlsFromTxt;
