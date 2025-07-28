@@ -1,11 +1,22 @@
+/**
+ * 📌 Script: startPuppeteer.js
+ * 🔧 Params:
+ *    - IXBrowser must be running with active profiles.
+ *    - External modules required: automateWallet.js
+ * 🧪 Usage:
+ *    1. Start IXBrowser and ensure profiles are running.
+ *    2. Launch this script: `node startPuppeteer.js`
+ *    3. Script will auto-connect to running profiles and apply automation.
+ */
+
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const axios = require('axios');
 const automateWallet = require('./walletImport'); // 🔁 Modular automation logic
 
-puppeteer.use(StealthPlugin());
+puppeteer.use(StealthPlugin()); // 🕵️ Stealth mode
 
-// 🔍 Query all running profiles with valid WebSocket endpoint
+// 🔍 Fetch all running profiles with valid WebSocket endpoints
 async function getRunningProfiles() {
   try {
     const res = await axios.get('http://127.0.0.1:3000/api/profiles');
@@ -20,20 +31,21 @@ async function getRunningProfiles() {
   }
 }
 
-// 🧠 Automate a single profile using external module
+// 🧠 Run automation logic on a single profile
 async function automateProfile(profile) {
   try {
     const browser = await puppeteer.connect({ browserWSEndpoint: profile.wsEndpoint });
     const page = await browser.newPage();
 
-    await automateWallet(page, profile.name); // 🔁 External automation logic
-    //await browser.disconnect();
+    await automateWallet(page, profile.name);
+    // Optionally disconnect if no more automation is needed
+    // await browser.disconnect();
   } catch (err) {
-    console.error(`❌ Failed on ${profile.name}: ${err.message}`);
+    throw new Error(`Failed on ${profile.name}: ${err.message}`);
   }
 }
 
-// 🚀 Main sequence: attach to every running profile
+// 🚀 Attach to all profiles and automate
 (async () => {
   const profiles = await getRunningProfiles();
   if (profiles.length === 0) {
@@ -41,5 +53,14 @@ async function automateProfile(profile) {
     return;
   }
 
-  await Promise.all(profiles.map(automateProfile));
+  const results = await Promise.allSettled(profiles.map(automateProfile));
+
+  results.forEach((result, index) => {
+    const name = profiles[index].name;
+    if (result.status === 'fulfilled') {
+      console.log(`✅ ${name} automation completed`);
+    } else {
+      console.error(`⚠️ ${name} automation failed: ${result.reason.message}`);
+    }
+  });
 })();
