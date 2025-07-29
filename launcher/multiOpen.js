@@ -8,15 +8,19 @@ const instanceDelay = 3000; // Delay between profile launches (ms)
 const urlDelay = 3000;      // Delay between URLs (ms)
 const apiUrl = 'http://127.0.0.1:3000/api/open-url'; // Adjust if needed
 
-// 🧩 Logical profile names to launch
-// googlesheet format ="['" & A2 & "'],"
-const profilePairs = [
-  ['Profile001'],
-  ['Profile003'],
-  ['Profile005'],
-  ['Profile007'],
-  ['Profile009']
-];
+// 🧩 Logical profile names to launch (paste-friendly multiline)
+const rawProfiles = `
+Profile001
+Profile003
+Profile005
+Profile007
+`;
+
+const profilePairs = rawProfiles
+  .split('\n')
+  .map(p => p.trim())
+  .filter(Boolean)
+  .map(p => [p]);
 
 // 📥 Load profile map from !profiles.txt
 function loadProfileMap(filePath) {
@@ -25,7 +29,7 @@ function loadProfileMap(filePath) {
     const raw = fs.readFileSync(filePath, 'utf-8');
     raw.split('\n').forEach(line => {
       const [name, id] = line.trim().split(',');
-      if (name && id) map[name] = id;
+      if (name && id) map[name.trim()] = id.trim();
     });
   } catch (err) {
     console.error(`❌ Error reading !profiles.txt: ${err.message}`);
@@ -33,6 +37,16 @@ function loadProfileMap(filePath) {
   }
   return map;
 }
+
+const profileMap = loadProfileMap(path.join(__dirname, '!profiles.txt'));
+
+// 🧠 Validate profilePairs against map
+profilePairs.forEach(([name]) => {
+  if (!profileMap[name]) {
+    console.warn(`⚠️ Profile "${name}" not found in map`);
+  }
+});
+
 
 // 🌐 Load URLs from !url.txt
 function loadUrls(filePath) {
