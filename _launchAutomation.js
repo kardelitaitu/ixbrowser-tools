@@ -167,35 +167,69 @@ class ixBrowserProfileManager {
             process.exit(1);
         }
     }
+    /**
+     * Main execution function
+     */
+    async run() {
+        try {
+            console.log('🚀 Starting ixBrowser Profile Manager\n');
+            
+            // Get opened profiles
+            const openedProfiles = await this.getOpenedProfiles();
+            
+            // Display the information
+            this.displayProfilesInfo(openedProfiles);
+            
+            // Optional: Also show all profiles with their status
+            console.log('\n' + '='.repeat(80));
+            console.log('📋 All Profiles Status:');
+            
+            const allProfiles = await this.getAllProfiles();
+            allProfiles.forEach(profile => {
+                const isOpened = openedProfiles.some(op => op.profile_id === profile.profile_id);
+                console.log(`${isOpened ? '🟢' : '🔴'} ${profile.name || profile.profile_id} - ${isOpened ? 'OPENED' : 'CLOSED'}`);
+            });
+            
+            return {
+                openedProfiles,
+                allProfiles
+            };
+            
+        } catch (error) {
+            console.error('❌ Script execution failed:', error);
+            process.exit(1);
+        }
+    }
 }
 
-// Usage example
+// Main execution function
 async function main() {
     const profileManager = new ixBrowserProfileManager();
     
-    // Get and display all opened profiles
-    const result = await profileManager.run();
-    
-    // Example: Connect to the first opened profile if available
-    if (result.openedProfiles.length > 0) {
-        try {
-            console.log('\n🔌 Connecting to first opened profile...');
-            const firstProfile = result.openedProfiles[0];
-            const { browser, context, page } = await profileManager.connectToProfile(
-                firstProfile.profile_id || firstProfile.id
-            );
-            
-            // Example automation: navigate to a page
-            await page.goto('https://httpbin.org/headers');
-            console.log('📄 Page title:', await page.title());
-            
-            // Don't forget to close the connection
-            await browser.close();
-            console.log('✅ Browser connection closed');
-            
-        } catch (error) {
-            console.error('❌ Failed to connect to profile:', error);
+    try {
+        // Run automation on ALL opened profiles in parallel using Promise.allSettled
+        const { results, summary } = await profileManager.runAllProfilesInParallel(180000); // 3 minute timeout
+        
+        console.log('\n🎉 All parallel automations completed!');
+        console.log(`📈 Success rate: ${summary.successRate}%`);
+        
+        // Access results if needed
+        const successfulResults = results.filter(r => r.success);
+        if (successfulResults.length > 0) {
+            console.log(`\n✅ Successfully processed ${successfulResults.length} profiles`);
         }
+        
+        const failedResults = results.filter(r => !r.success);
+        if (failedResults.length > 0) {
+            console.log(`\n❌ Failed profiles: ${failedResults.length}`);
+            failedResults.forEach(result => {
+                console.log(`   - ${result.profileName}: ${result.error}`);
+            });
+        }
+        
+    } catch (error) {
+        console.error('❌ Main execution failed:', error);
+        process.exit(1);
     }
 }
 
