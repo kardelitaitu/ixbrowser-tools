@@ -1,5 +1,5 @@
 @echo off
 
 cd /d "%~dp0"
-code .
+node _launchAutomation.js
 pause
