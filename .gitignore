@@ -1,1 +1,19 @@
-node_modules
+# VS Code local settings
+.vscode/
+
+# Gemini CLI local settings
+.gemini/
+
+# Other local tool settings
+.goose/
+.qodo/
+
+# Logs - never commit these!
+logs/
+
+# Dependencies - these are huge and should be installed, not uploaded
+node_modules/
+monitoring/node_modules/
+
+AGENTS.md
+GEMINI.md

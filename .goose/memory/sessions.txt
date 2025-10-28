@@ -1,3 +1,0 @@
-# #cache #session #quickreturn
-/C/My Script/ixbrowser-playwright/.goose
-
