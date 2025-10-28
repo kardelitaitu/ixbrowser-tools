@@ -1,0 +1,16 @@
+[
+  {
+    "type": "twitterFollow",
+    "handle": "@abcde",
+    "options": {
+      "likeFirstTweet": false
+    }
+  },
+  {
+    "type": "twitterFollow",
+    "handle": "@zyz123",
+    "options": {
+      "likeFirstTweet": false
+    }
+  }
+]

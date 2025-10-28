@@ -1,0 +1,38 @@
+[INIT] Enterprise Automation Orchestrator started at Fri 10/17/2025 14:42:45.48  
+[Fri 10/17/2025 14:42:47.82] [INFO] Resource Check [baseline] - Memory: 16 GB | RAM: 72%  
+[Fri 10/17/2025 14:42:48.42] [WARN] System resources are constrained. Proceeding with reduced concurrency. | RAM: 74%  
+[Fri 10/17/2025 14:42:51.48] [ERROR] ixBrowser API not accessible. Ensure ixBrowser is running. | RAM: 76%  
+[Fri 10/17/2025 14:42:52.22] [WARN] IXBROWSER_API_KEY environment variable not set. Using default. | RAM: 77%  
+[Fri 10/17/2025 14:42:53.01] [ERROR] Environment validation failed. Exiting. | RAM: 78%  
+[Fri 10/17/2025 14:42:53.63] [ERROR] Automation orchestration failed | RAM: 78%  
+[Fri 10/17/2025 14:43:01.12] [INIT] Recovery sequence initiated  
+[Fri 10/17/2025 14:43:02.88] [INFO] Checking fallback registry keys...  
+[Fri 10/17/2025 14:43:03.57] [WARN] Registry key HKEY_LOCAL_MACHINE\SOFTWARE\IXBROWSER missing  
+[Fri 10/17/2025 14:43:04.29] [INFO] Attempting to restore default registry values  
+[Fri 10/17/2025 14:43:05.01] [ERROR] Registry restoration failed. Access denied. | RAM: 79%  
+[Fri 10/17/2025 14:43:06.42] [WARN] Running with degraded registry state  
+[Fri 10/17/2025 14:43:07.88] [INFO] Retrying ixBrowser API handshake  
+[Fri 10/17/2025 14:43:08.53] [ERROR] ixBrowser API still unreachable | RAM: 80%  
+[Fri 10/17/2025 14:43:10.12] [INFO] Launching diagnostic module: net_diag  
+[Fri 10/17/2025 14:43:11.47] [INFO] Network latency: 142ms | Packet loss: 0.3%  
+[Fri 10/17/2025 14:43:12.33] [WARN] DNS resolution failed for ixbrowser.local  
+[Fri 10/17/2025 14:43:13.01] [INFO] Switching to fallback IP: 192.168.88.11  
+[Fri 10/17/2025 14:43:13.77] [ERROR] Connection refused on port 443 | RAM: 81%  
+[Fri 10/17/2025 14:43:14.42] [WARN] SSL handshake failed. Certificate expired.  
+[Fri 10/17/2025 14:43:15.09] [ERROR] Secure channel initialization failed | RAM: 82%  
+[Fri 10/17/2025 14:43:17.01] [INFO] Initiating rollback protocol  
+[Fri 10/17/2025 14:43:17.88] [INFO] Restoring previous orchestration state  
+[Fri 10/17/2025 14:43:18.53] [WARN] Previous state snapshot incomplete  
+[Fri 10/17/2025 14:43:19.22] [INFO] Attempting partial restore  
+[Fri 10/17/2025 14:43:20.01] [ERROR] Restore failed. Snapshot corrupted | RAM: 83%  
+[Fri 10/17/2025 14:43:20.67] [WARN] Manual intervention required  
+[Fri 10/17/2025 14:43:21.42] [ERROR] Orchestration halted. Awaiting operator input | RAM: 84%  
+[Fri 10/17/2025 16:43:21.42] [ERROR] Orchestration halted. Awaiting operator input | RAM: 14%
+[Fri 10/17/2025 16:43:25.88] [INFO] Operator override received. Resuming orchestration
+[Fri 10/17/2025 16:43:26.53] [INFO] Re-attempting ixBrowser API handshake
+[Fri 10/17/2025 16:43:27.22] [INFO] ixBrowser API reachable. Handshake successful | RAM: 15%
+[Fri 10/17/2025 16:43:28.01] [INFO] Environment validation passed | RAM: 15%
+[Fri 10/17/2025 16:43:28.67] [INFO] Automation orchestration resumed successfully | RAM: 16%
+[Fri 10/17/2025 16:43:30.12] [INFO] Resource Check [post-recovery] - Memory: 16 GB | RAM: 16%
+[Fri 10/17/2025 16:43:31.88] [INFO] Orchestration completed successfully | RAM: 17%
+[Fri 10/17/2025 16:43:32.42] [INFO] Enterprise Automation Orchestrator stopped at Fri 10/17/2025 16:43:32.42

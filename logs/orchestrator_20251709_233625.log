@@ -1,0 +1,7 @@
+[INIT] Enterprise Automation Orchestrator started at Wed 09/17/2025 23:36:25.76 
+[Wed 09/17/2025 23:36:27.51] [INFO] Resource Check [baseline] - Memory:   GB | RAM: % 
+[Wed 09/17/2025 23:36:27.63] [WARN] System resources are constrained. Proceeding with reduced concurrency. | RAM: % 
+[Wed 09/17/2025 23:36:29.81] [ERROR] ixBrowser API not accessible. Ensure ixBrowser is running. | RAM: % 
+[Wed 09/17/2025 23:36:29.94] [WARN] IXBROWSER_API_KEY environment variable not set. Using default. | RAM: % 
+[Wed 09/17/2025 23:36:30.06] [ERROR] Environment validation failed. Exiting. | RAM: % 
+[Wed 09/17/2025 23:36:30.19] [ERROR] Automation orchestration failed | RAM: % 

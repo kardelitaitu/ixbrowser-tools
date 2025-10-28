@@ -1,0 +1,23 @@
+{
+  "twitter": {
+    "like": [
+      "[data-testid=\"like\"]",
+      "button[aria-label*=\"Like\"]",
+      "svg[data-testid=\"likeIcon\"] + button"
+    ],
+    "follow": [
+      "[data-testid=\"follow\"]",
+      "button[aria-label*=\"Follow @{handle}\"]",
+      "div[role=\"button\"][aria-label*=\"Follow\"]",
+      "//span[text()=\"Follow\"]",
+      "//button//span[contains(text(), \"Follow\")]"
+    ],
+    "following": [
+      "[data-testid=\"following\"]",
+      "button[aria-label*=\"Following @{handle}\"]",
+      "//span[text()=\"Following\"]",
+      "//span[text()=\"Followed\"]",
+      "//button//span[contains(text(), \"Following\")]"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+[2025-10-28T18:23:28.354Z] [INFO] === AUTOMATION SESSION STARTED ===
+[2025-10-28T18:23:28.355Z] [INFO] Starting parallel automation across all opened profiles.
+[2025-10-28T18:23:28.374Z] [WARN] Profile fetch error: fetch failed
+[2025-10-28T18:23:28.375Z] [WARN] No profiles found to automate.
+[2025-10-28T18:23:28.376Z] [INFO] Automation completed. Success rate: undefined%
+[2025-10-28T18:23:28.377Z] [INFO] === AUTOMATION SESSION COMPLETED ===

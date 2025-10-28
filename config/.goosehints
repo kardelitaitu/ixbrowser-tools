@@ -1,0 +1,15 @@
+# Project Folder
+`C:\My Script\ixbrowser-playwright`
+
+# Use tool anytypemcp to interact with AnyType tasks
+
+do not stuck while retrieving a json
+
+# Single custom file
+export CONTEXT_FILE_NAMES='["AGENTS.md"]'
+
+# Project toolchain files
+export CONTEXT_FILE_NAMES='[".cursorrules", "AGENTS.md"]'
+
+# Multiple files
+export CONTEXT_FILE_NAMES='["CLAUDE.md", ".goosehints", "project_rules.txt"]'

@@ -1,0 +1,19 @@
+# #directory #files #projectStructure
+[DIR] .claude
+[FILE] .goosehints
+[DIR] .qodo
+[DIR] .vscode
+[FILE] __launchAutomation.bat
+[FILE] _automation.js
+[FILE] _launchAutomation.js
+[FILE] _orchestrator.bat
+[FILE] _orchestrator.ps1
+[FILE] best_practices.md
+[FILE] humanSimulation.js
+[DIR] logs
+[DIR] old copy
+[FILE] package.json
+
+# #project-folder
+C:\My Script\ixbrowser-playwright
+

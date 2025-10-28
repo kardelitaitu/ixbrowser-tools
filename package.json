@@ -1,0 +1,39 @@
+{
+  "name": "ixbrowser-playwright",
+  "version": "1.0.2",
+  "description": "Browser Automation Project, orchestrates Playwright-based, human-like web automation across multiple ixBrowser profiles in parallel",
+  "main": "src/core/_launchAutomation.js",
+  "scripts": {
+    "start": "npm run build && node dist/core/_launchAutomation.js",
+    "build": "tsc",
+    "dev": "ts-node src/core/_launchAutomation.ts",
+    "install-deps": "npm install playwright-extra playwright-extra-plugin-stealth",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.js *.js",
+    "lint:fix": "eslint src/**/*.js *.js --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "playwright": "^1.41.0",
+    "playwright-extra": "^4.3.4",
+    "zod": "^4.1.12"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "eslint": "^8.57.1",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
