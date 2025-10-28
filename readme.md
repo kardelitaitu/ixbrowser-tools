@@ -52,7 +52,7 @@ ixbrowser-playwright/
 │   └── tasks/                   # Specific automation tasks
 │       └── taskFollowTwitter.ts # Example: Twitter follow logic
 ├── config/
-│   └── tasks.json             # Externalized task configuration
+│   └── tasks.json               # Externalized task configuration
 ├── monitoring/                  # Real-time monitoring dashboard
 ├── logs/                        # Runtime logs and outputs
 ├── __launchAutomation.bat       # Windows quick launcher
