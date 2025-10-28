@@ -1,43 +1,9 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = exports.type = void 0;
 const element_finder_1 = require("../utils/element-finder");
 const retry_utils_1 = require("../utils/retry-utils");
 const errors_1 = require("../utils/errors");
-const selectors = __importStar(require("../../config/selectors.json"));
 const DEFAULT_OPTIONS = {
     likeFirstTweet: false, // Optional engagement
     verifyOnly: false, // If true, just check without clicking
@@ -51,9 +17,10 @@ const DEFAULT_OPTIONS = {
  * @param options - Task options.
  * @param profileId - The profile ID for audit logging.
  * @param profileName - The profile name for audit logging.
+ * @param selectors - The selectors for the task.
  * @returns A promise that resolves with the task result.
  */
-async function taskFollowTwitter(page, automation, username, options = {}, profileId = null, profileName = null) {
+async function taskFollowTwitter(page, automation, username, options = {}, profileId = null, profileName = null, selectors) {
     const { likeFirstTweet = DEFAULT_OPTIONS.likeFirstTweet, verifyOnly = DEFAULT_OPTIONS.verifyOnly, delayBetweenActions = DEFAULT_OPTIONS.delayBetweenActions, } = options;
     const cleanHandle = username.replace('@', '');
     const profileUrl = `https://x.com/${cleanHandle}`;
@@ -99,7 +66,7 @@ async function taskFollowTwitter(page, automation, username, options = {}, profi
             // Just verify without following (e.g., check if already following)
             logger(`Verification only for ${username}, not performing follow action.`);
             await auditLogger?.logAction('task_follow', 'verify_only', true, profileId, profileName, { handle: username });
-            return await verifyFollow(page, username, automation, auditLogger, profileId, profileName);
+            return await verifyFollow(page, username, automation, auditLogger, profileId, profileName, selectors);
         }
         // Find and click follow button
         const followSelectors = selectors.twitter.follow.map((s) => s.replace('{handle}', cleanHandle));
@@ -112,7 +79,7 @@ async function taskFollowTwitter(page, automation, username, options = {}, profi
         await automation.delay('long'); // Post-click pause (Twitter processes)
         logger(`Clicked follow button for ${username}. Verifying follow status.`);
         // Verify success
-        const verification = await verifyFollow(page, username, automation, auditLogger, profileId, profileName);
+        const verification = await verifyFollow(page, username, automation, auditLogger, profileId, profileName, selectors);
         if (verification.success) {
             logger(`✅ Successfully followed ${username} (via ${selectorUsed})`);
             await auditLogger?.logStepEnd('task_follow', 'follow_execution', true, profileId, profileName, {
@@ -136,7 +103,7 @@ async function taskFollowTwitter(page, automation, username, options = {}, profi
         await auditLogger?.logAction('task_follow', 'follow_error', false, profileId, profileName, { handle: username, error: error.message });
         // Fallback verify: Check if already following
         logger(`Attempting fallback verification for ${username} (checking if already following).`);
-        const fallbackVerify = await verifyFollow(page, username, automation, auditLogger, profileId, profileName);
+        const fallbackVerify = await verifyFollow(page, username, automation, auditLogger, profileId, profileName, selectors);
         if (fallbackVerify.success) {
             logger(`  ℹ️  Already following ${username} – skipping OK`);
             await auditLogger?.logStepEnd('task_follow', 'follow_execution', true, profileId, profileName, { handle: username, action: 'already_following' });
@@ -157,9 +124,10 @@ async function taskFollowTwitter(page, automation, username, options = {}, profi
  * @param auditLogger - The audit logger instance.
  * @param profileId - The profile ID.
  * @param profileName - The profile name.
+ * @param selectors - The selectors for the task.
  * @returns A promise that resolves with the verification result.
  */
-async function verifyFollow(page, username, automation, auditLogger = null, profileId = null, profileName = null) {
+async function verifyFollow(page, username, automation, auditLogger = null, profileId = null, profileName = null, selectors) {
     const cleanHandle = username.replace('@', '');
     const verifySelectors = selectors.twitter.following.map((s) => s.replace('{handle}', cleanHandle));
     automation.logger(`Attempting to verify follow status for ${username}`);

@@ -370,4 +370,4 @@ async function verifyFollow(
 }
 
 export const type = 'twitterFollow';
-export const run = taskFollowTwitter;'''
+export const run = taskFollowTwitter;

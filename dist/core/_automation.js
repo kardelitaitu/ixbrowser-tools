@@ -90,6 +90,17 @@ const loadTasks = async () => {
     }
 };
 const ALL_TASKS = loadTasks();
+const SELECTORS = (async () => {
+    const selectorsPath = path.join(__dirname, '../../config/selectors.json');
+    try {
+        const data = await fs.promises.readFile(selectorsPath, 'utf8');
+        return JSON.parse(data);
+    }
+    catch (error) {
+        console.error(`Error loading selectors.json: ${error.message}`);
+        return {};
+    }
+})();
 class BrowserAutomation {
     config;
     logger;
@@ -141,6 +152,7 @@ async function run(browser, context, page, profileData, auditLogger = null) {
         const prefixedLogger = (...args) => automation.logger(`[${profileName}]`, ...args);
         prefixedLogger('Starting dynamic task execution');
         const tasks = await ALL_TASKS; // Await the promise to get the tasks array
+        const selectors = await SELECTORS; // Await the promise to get the selectors
         for (let i = 0; i < tasks.length; i++) {
             const task = tasks[i];
             prefixedLogger(`Executing task ${i + 1}/${tasks.length}: ${task.type} - ${task.handle || 'N/A'}`);
@@ -148,7 +160,7 @@ async function run(browser, context, page, profileData, auditLogger = null) {
             try {
                 const taskRunner = taskRegistry.get(task.type);
                 if (taskRunner) {
-                    taskResult = await taskRunner(enhancedPage, { ...automation, logger: prefixedLogger, auditLogger: logger }, task.handle, task.options, profileId, profileName);
+                    taskResult = await taskRunner(enhancedPage, { ...automation, logger: prefixedLogger, auditLogger: logger }, task.handle, task.options, profileId, profileName, selectors);
                 }
                 else {
                     throw new Error(`Unknown task type: ${task.type}`);

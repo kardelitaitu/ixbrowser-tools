@@ -1,5 +1,16 @@
 # Patch Notes
 
+## Version 1.1.1 (2025-10-29)
+- **Codebase Refactoring & Modularization:**
+  - **Refactored Core Architecture:** Broke down the large `_launchAutomation.ts` file (~520 lines) into three focused, single-responsibility modules:
+    - `browser-pool.ts`: Manages browser connection pooling, anti-detection scripts, and resource blocking
+    - `profile-manager.ts`: Handles fetching and managing ixBrowser profiles with lazy loading
+    - `automation-runner.ts`: Orchestrates automation task execution and parallel processing
+  - **Improved Maintainability:** Reduced main orchestrator file to ~120 lines while preserving all functionality
+  - **Enhanced Testability:** Smaller, focused modules are easier to unit test and maintain
+  - **Better Separation of Concerns:** Each module has a clear, single responsibility
+- **Security Verification:** Confirmed proper environment variable usage for API keys with .env file exclusion from version control
+
 ## Version 1.1.0 (2025-10-29)
 - **Migrated to TypeScript:**
   - The entire codebase has been migrated to TypeScript, improving code quality, maintainability, and developer experience.
