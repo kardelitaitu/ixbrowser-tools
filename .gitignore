@@ -17,3 +17,6 @@ monitoring/node_modules/
 
 AGENTS.md
 GEMINI.md
+
+# Environment variables
+.env

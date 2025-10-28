@@ -2,7 +2,6 @@ import { Page } from 'playwright';
 import { findElementSmart } from '../utils/element-finder';
 import { retryWithBackoff } from '../utils/retry-utils';
 import { VerificationError } from '../utils/errors';
-import * as selectors from '../../config/selectors.json';
 import { AuditLogger } from '../utils/audit-logger';
 
 /**
@@ -42,6 +41,7 @@ const DEFAULT_OPTIONS: TaskFollowTwitterOptions = {
  * @param options - Task options.
  * @param profileId - The profile ID for audit logging.
  * @param profileName - The profile name for audit logging.
+ * @param selectors - The selectors for the task.
  * @returns A promise that resolves with the task result.
  */
 async function taskFollowTwitter(
@@ -50,7 +50,8 @@ async function taskFollowTwitter(
   username: string,
   options: TaskFollowTwitterOptions = {},
   profileId: string | null = null,
-  profileName: string | null = null
+  profileName: string | null = null,
+  selectors: any
 ): Promise<TaskResult> {
   const {
     likeFirstTweet = DEFAULT_OPTIONS.likeFirstTweet,
@@ -169,7 +170,8 @@ async function taskFollowTwitter(
         automation,
         auditLogger,
         profileId,
-        profileName
+        profileName,
+        selectors
       );
     }
 
@@ -210,7 +212,8 @@ async function taskFollowTwitter(
       automation,
       auditLogger,
       profileId,
-      profileName
+      profileName,
+      selectors
     );
     if (verification.success) {
       logger(`✅ Successfully followed ${username} (via ${selectorUsed})`);
@@ -254,7 +257,8 @@ async function taskFollowTwitter(
       automation,
       auditLogger,
       profileId,
-      profileName
+      profileName,
+      selectors
     );
     if (fallbackVerify.success) {
       logger(`  ℹ️  Already following ${username} – skipping OK`);
@@ -292,6 +296,7 @@ async function taskFollowTwitter(
  * @param auditLogger - The audit logger instance.
  * @param profileId - The profile ID.
  * @param profileName - The profile name.
+ * @param selectors - The selectors for the task.
  * @returns A promise that resolves with the verification result.
  */
 async function verifyFollow(
@@ -300,7 +305,8 @@ async function verifyFollow(
   automation: AutomationInstance,
   auditLogger: AuditLogger | null = null,
   profileId: string | null = null,
-  profileName: string | null = null
+  profileName: string | null = null,
+  selectors: any
 ): Promise<TaskResult> {
   const cleanHandle = username.replace('@', '');
   const verifySelectors = (selectors as any).twitter.following.map((s: string) => s.replace('{handle}', cleanHandle));
@@ -364,4 +370,4 @@ async function verifyFollow(
 }
 
 export const type = 'twitterFollow';
-export const run = taskFollowTwitter;
+export const run = taskFollowTwitter;'''

@@ -58,6 +58,16 @@ const loadTasks = async () => {
 };
 
 const ALL_TASKS = loadTasks();
+const SELECTORS = (async () => {
+  const selectorsPath = path.join(__dirname, '../../config/selectors.json');
+  try {
+    const data = await fs.promises.readFile(selectorsPath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error(`Error loading selectors.json: ${(error as Error).message}`);
+    return {};
+  }
+})();
 
 export class BrowserAutomation {
   public config: typeof DEFAULT_CONFIG;
@@ -144,6 +154,7 @@ export async function run(
     prefixedLogger('Starting dynamic task execution');
 
     const tasks = await ALL_TASKS; // Await the promise to get the tasks array
+    const selectors = await SELECTORS; // Await the promise to get the selectors
 
     for (let i = 0; i < tasks.length; i++) {
       const task = tasks[i];
@@ -159,7 +170,8 @@ export async function run(
             task.handle,
             task.options,
             profileId,
-            profileName
+            profileName,
+            selectors
           );
         } else {
           throw new Error(`Unknown task type: ${task.type}`);

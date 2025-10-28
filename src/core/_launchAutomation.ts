@@ -42,8 +42,13 @@ class IxBrowserAutomation {
   private _cachedProfiles: any[] | undefined;
 
   constructor(options: IxBrowserAutomationOptions = {}) {
-    this.baseUrl = process.env.BASE_URL || options.baseUrl || 'http://127.0.0.1:53200';
-    this.apiKey = process.env.IXBROWSER_API_KEY || 'your-api-key-here';
+    this.baseUrl = process.env.BASE_URL || options.baseUrl;
+    this.apiKey = process.env.IXBROWSER_API_KEY || options.apiKey;
+
+    if (!this.baseUrl || !this.apiKey) {
+      throw new Error('BASE_URL and IXBROWSER_API_KEY must be defined in your .env file');
+    }
+
     this.ixBrowserClient = new IxBrowserClient(this.baseUrl, this.apiKey);
     this.logFile = path.join(
       __dirname,
