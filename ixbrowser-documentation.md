@@ -1,4 +1,4 @@
-# IXBrowser API Documentation (compact)
+# IXBrowser API Documentation (AI-Friendly Version)
 
 ## Overview
 IXBrowser API enables programmatic management of browser profiles, including creation, opening, closing, and automation via tools like Selenium or Puppeteer. Base URL: `http://127.0.0.1:53200`. All requests are POST with JSON content.
