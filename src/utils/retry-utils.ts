@@ -3,14 +3,14 @@ import {
   AutomationTimeoutError,
   NetworkError,
   ProfileConnectionError,
-  ElementNotFoundError
+  ElementNotFoundError,
 } from './errors';
 
 interface RetryOptions {
   maxAttempts?: number;
   baseDelay?: number;
   maxDelay?: number;
-  shouldRetry?: (error: any) => boolean;
+  shouldRetry?: (_error: unknown) => boolean;
 }
 
 export async function retryWithBackoff<T>(operation: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
@@ -18,10 +18,10 @@ export async function retryWithBackoff<T>(operation: () => Promise<T>, options: 
     maxAttempts = 3,
     baseDelay = 1000,
     maxDelay = 10000,
-    shouldRetry = (error: any) => (error as AutomationError).retryable !== false
+    shouldRetry = (error: unknown) => (error as AutomationError).retryable !== false,
   } = options;
 
-  let lastError: any;
+  let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -61,17 +61,17 @@ export async function retryNetworkOperation<T>(operation: () => Promise<T>, maxA
     maxAttempts,
     baseDelay: 1000,
     maxDelay: 5000,
-    shouldRetry: (error: any) => {
+    shouldRetry: (error: unknown) => {
       if (error instanceof NetworkError || error instanceof AutomationTimeoutError) {
         return true;
       }
       return (
-        error.message.includes('net::') ||
-        error.message.includes('timeout') ||
-        error.message.includes('ECONNRESET') ||
-        (error.response && error.response.status >= 500)
+        (error as any).message.includes('net::') ||
+        (error as any).message.includes('timeout') ||
+        (error as any).message.includes('ECONNRESET') ||
+        ((error as any).response && (error as any).response.status >= 500)
       );
-    }
+    },
   });
 }
 
@@ -80,7 +80,7 @@ export async function retryProfileConnection<T>(operation: () => Promise<T>, max
     maxAttempts,
     baseDelay: 2000,
     maxDelay: 8000,
-    shouldRetry: (error: any) => error instanceof ProfileConnectionError || (error as AutomationError).retryable
+    shouldRetry: (error: unknown) => error instanceof ProfileConnectionError || (error as AutomationError).retryable,
   });
 }
 
@@ -89,6 +89,6 @@ export async function retryElementOperation<T>(operation: () => Promise<T>, maxA
     maxAttempts,
     baseDelay: 500,
     maxDelay: 2000,
-    shouldRetry: (error: any) => !(error instanceof ElementNotFoundError) && (error as AutomationError).retryable !== false
+    shouldRetry: (error: unknown) => !(error instanceof ElementNotFoundError) && (error as AutomationError).retryable !== false,
   });
 }

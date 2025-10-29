@@ -6,7 +6,7 @@ import { Page } from 'playwright';
 
 interface ScrollOptions {
   block?: 'start' | 'center' | 'end' | 'nearest';
-  delay?: (profile: 'short' | 'medium' | 'long') => Promise<void>;
+  delay?: (_profile: 'short' | 'medium' | 'long') => Promise<void>;
   throwOnError?: boolean;
 }
 
@@ -20,7 +20,7 @@ interface ScrollOptions {
 export async function scrollIntoViewIfNeeded(
   page: Page,
   selector: string,
-  options: ScrollOptions = {}
+  options: ScrollOptions = {},
 ): Promise<void> {
   const { block = 'center', delay, throwOnError = false } = options;
 
@@ -50,4 +50,3 @@ export async function scrollIntoViewIfNeeded(
     // Don't throw by default - scrolling is not always critical for operation
   }
 }
-

@@ -20,7 +20,7 @@ interface MouseMovementOptions {
 export async function simulateMouseMovement(
   page: Page,
   element: ElementHandle,
-  options: MouseMovementOptions = {}
+  options: MouseMovementOptions = {},
 ): Promise<void> {
   const {
     steps = Math.floor(Math.random() * 15) + 10, // More steps for smoother curves
@@ -93,7 +93,7 @@ export async function simulateMouseMovement(
 
     // Ensure starting position is not too close to target
     const distance = Math.sqrt(
-      Math.pow(targetX - startX, 2) + Math.pow(targetY - startY, 2)
+      Math.pow(targetX - startX, 2) + Math.pow(targetY - startY, 2),
     );
     if (distance < 50) {
       // Increased minimum distance
@@ -191,7 +191,7 @@ export function randomDelay(min: number, max: number): Promise<void> {
  * @param page - The Playwright page instance.
  */
 export function addHumanClickToPage(page: Page): void {
-  (page as any).humanClick = async function (selector: string): Promise<void> {
+  (page as any).humanClick = async function(selector: string): Promise<void> {
     try {
       // Wait for element to be visible and interactable
       await page.waitForSelector(selector, {
@@ -232,9 +232,9 @@ export function addHumanClickToPage(page: Page): void {
  * @param page - The Playwright page instance.
  */
 export function addHumanScrollToPage(page: Page): void {
-  (page as any).humanScroll = async function (
+  (page as any).humanScroll = async function(
     direction: 'up' | 'down',
-    amount: number
+    amount: number,
   ): Promise<void> {
     try {
       const scrollDistance = direction === 'down' ? amount : -amount;
@@ -244,7 +244,7 @@ export function addHumanScrollToPage(page: Page): void {
       while (scrolled < totalScroll) {
         const scrollAmount = Math.min(
           Math.floor(Math.random() * 100) + 50,
-          totalScroll - scrolled
+          totalScroll - scrolled,
         ); // Scroll 50-150px at a time
         await page.mouse.wheel(0, direction === 'down' ? scrollAmount : -scrollAmount);
         scrolled += scrollAmount;
@@ -259,7 +259,7 @@ export function addHumanScrollToPage(page: Page): void {
 }
 
 interface HumanScrollOptions {
-  delay?: (profile: 'short' | 'medium' | 'long') => Promise<void>;
+  delay?: (_profile: 'short' | 'medium' | 'long') => Promise<void>;
 }
 
 /**
@@ -273,7 +273,7 @@ export async function humanScroll(
   page: Page,
   direction: 'down' | 'up' = 'down',
   amount = 300,
-  options: HumanScrollOptions = {}
+  options: HumanScrollOptions = {},
 ): Promise<void> {
   const { delay } = options;
 
@@ -285,7 +285,7 @@ export async function humanScroll(
     while (scrolled < totalScroll) {
       const scrollAmount = Math.min(
         Math.floor(Math.random() * 100) + 50,
-        totalScroll - scrolled
+        totalScroll - scrolled,
       ); // Scroll 50-150px at a time
       await page.mouse.wheel(0, direction === 'down' ? scrollAmount : -scrollAmount);
       scrolled += scrollAmount;

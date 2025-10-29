@@ -1,4 +1,3 @@
-import { Page } from 'playwright';
 import { run as automationRun } from '../core/_automation';
 import { AuditLogger } from '../utils/audit-logger';
 import { AutomationTimeoutError } from '../utils/errors';
@@ -12,7 +11,7 @@ export class AutomationRunner {
   constructor(
     browserPool: BrowserPool,
     auditLogger: AuditLogger,
-    options: { timeout?: number } = {}
+    options: { timeout?: number } = {},
   ) {
     this.browserPool = browserPool;
     this.auditLogger = auditLogger;
@@ -20,7 +19,7 @@ export class AutomationRunner {
   }
 
   async runProfileAutomation(
-    profile: any
+    profile: any,
   ): Promise<{
     success: boolean;
     profileId: string;
@@ -38,7 +37,7 @@ export class AutomationRunner {
       'profile',
       'automation_run',
       profileId,
-      profileName
+      profileName,
     );
 
     try {
@@ -52,12 +51,12 @@ export class AutomationRunner {
           context,
           page,
           profileData,
-          this.auditLogger
+          this.auditLogger,
         );
         const duration = Date.now() - startTime;
 
         console.log(
-          `Automation for profile ${profileName} (${profileId}) completed successfully in ${duration}ms. Result type: ${result.type}`
+          `Automation for profile ${profileName} (${profileId}) completed successfully in ${duration}ms. Result type: ${result.type}`,
         );
         await this.auditLogger.logStepEnd(
           'profile',
@@ -67,7 +66,7 @@ export class AutomationRunner {
           profileName,
           { resultType: result.type },
           null,
-          duration
+          duration,
         );
 
         return {
@@ -81,7 +80,7 @@ export class AutomationRunner {
         console.error(
           `Automation for profile ${profileName} (${profileId}) failed: ${
             (automationError as Error).message
-          }`
+          }`,
         );
         await this.auditLogger.logStepEnd(
           'profile',
@@ -90,7 +89,7 @@ export class AutomationRunner {
           profileId,
           profileName,
           {},
-          (automationError as Error).message
+          (automationError as Error).message,
         );
         return {
           success: false,
@@ -107,7 +106,7 @@ export class AutomationRunner {
       console.error(
         `Connection to profile ${profileName} (${profileId}) failed: ${
           (connectionError as Error).message
-        }`
+        }`,
       );
       await this.auditLogger.logStepEnd(
         'profile',
@@ -116,7 +115,7 @@ export class AutomationRunner {
         profileId,
         profileName,
         {},
-        (connectionError as Error).message
+        (connectionError as Error).message,
       );
       return {
         success: false,
@@ -141,7 +140,7 @@ export class AutomationRunner {
           false,
           null,
           null,
-          { reason: 'no_profiles' }
+          { reason: 'no_profiles' },
         );
         return { results: [], summary: { total: 0, successful: 0, failed: 0 } };
       }
@@ -157,13 +156,13 @@ export class AutomationRunner {
                 reject(
                   new AutomationTimeoutError(
                     `Profile automation timed out after ${this.timeout}ms`,
-                    this.timeout
-                  )
+                    this.timeout,
+                  ),
                 ),
-              this.timeout
-            )
+              this.timeout,
+            ),
           ),
-        ])
+        ]),
       );
 
       const results = await Promise.allSettled(automationPromises);
@@ -178,12 +177,12 @@ export class AutomationRunner {
                 `Profile-${profiles[index].profile_id || profiles[index].id}`,
               error: (result.reason as Error).message,
               type: 'promise_rejection',
-            }
+            },
       );
 
       const summary = this.generateSummary(processedResults, Date.now() - startTime);
       console.log(
-        `Parallel automation completed. Summary: Total: ${summary.total}, Successful: ${summary.successful}, Failed: ${summary.failed}, Success Rate: ${summary.successRate}%`
+        `Parallel automation completed. Summary: Total: ${summary.total}, Successful: ${summary.successful}, Failed: ${summary.failed}, Success Rate: ${summary.successRate}%`,
       );
       await this.auditLogger.logStepEnd(
         'session',
@@ -193,7 +192,7 @@ export class AutomationRunner {
         null,
         { summary },
         null,
-        Date.now() - startTime
+        Date.now() - startTime,
       );
 
       return {
@@ -209,7 +208,7 @@ export class AutomationRunner {
         null,
         null,
         {},
-        (error as Error).message
+        (error as Error).message,
       );
       throw error;
     }

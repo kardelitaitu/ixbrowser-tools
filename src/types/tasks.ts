@@ -5,9 +5,9 @@ export interface TaskResult {
   success: boolean;
   message: string;
   error?: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface IAutomationTask {
-  execute(page: Page, profile: IxbrowserProfile): Promise<TaskResult>;
+  execute(_page: Page, _profile: IxbrowserProfile): Promise<TaskResult>;
 }

@@ -21,7 +21,7 @@ export class ProfileManager {
         true,
         null,
         null,
-        { profileCount: profiles.length }
+        { profileCount: profiles.length },
       );
       return profiles;
     } catch (error) {
@@ -33,7 +33,7 @@ export class ProfileManager {
         null,
         null,
         {},
-        (error as Error).message
+        (error as Error).message,
       );
       return [];
     }

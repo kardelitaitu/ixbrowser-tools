@@ -43,7 +43,7 @@ export async function findElementSmart(page: Page, selectors: string[], timeout 
       throw new ElementNotFoundError(
         `Element not found within ${timeout}ms using selectors: ${selectors.join(', ')}`,
         selectors.join(', '),
-        page.url()
+        page.url(),
       );
     }
   }
@@ -52,6 +52,6 @@ export async function findElementSmart(page: Page, selectors: string[], timeout 
   throw new ElementNotFoundError(
     `No visible elements found using selectors: ${selectors.join(', ')}`,
     selectors.join(', '),
-    page.url()
+    page.url(),
   );
 }

@@ -1,6 +1,11 @@
 import { retryNetworkOperation } from './retry-utils';
 import { NetworkError, ProfileConnectionError } from './errors';
 
+interface ApiResponse {
+  error: { code: number; message: string };
+  data: unknown;
+}
+
 export class IxBrowserClient {
   private baseUrl: string;
   private apiKey: string;
@@ -10,8 +15,8 @@ export class IxBrowserClient {
     this.apiKey = apiKey;
   }
 
-  async apiRequest(endpoint: string, method = 'POST', body: any = null): Promise<any> {
-    return await retryNetworkOperation(async () => {
+  async apiRequest(endpoint: string, method = 'POST', body: unknown = null): Promise<ApiResponse> {
+    return await retryNetworkOperation(async() => {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method,
         headers: {
@@ -28,12 +33,12 @@ export class IxBrowserClient {
     }, 3);
   }
 
-  async getOpenedProfiles(): Promise<any[]> {
+  async getOpenedProfiles(): Promise<unknown[]> {
     const openedResponse = await this.apiRequest('/api/v2/profile-opened-list', 'POST');
     if (openedResponse.error.code !== 0) {
       throw new Error(`Failed to get opened profiles: ${openedResponse.error.message}`);
     }
-    const openedProfileIds = new Set((openedResponse.data || []).map((p: any) => p.profile_id));
+    const openedProfileIds = new Set((openedResponse.data as unknown[] || []).map((p: unknown) => (p as any).profile_id));
 
     if (openedProfileIds.size === 0) {
       return [];
@@ -44,11 +49,11 @@ export class IxBrowserClient {
       throw new Error(`Failed to get all profiles: ${allProfilesResponse.error.message}`);
     }
 
-    const profiles = (allProfilesResponse.data.data || []).filter((p: any) => openedProfileIds.has(p.profile_id));
+    const profiles = ((allProfilesResponse.data as any).data || []).filter((p: unknown) => openedProfileIds.has((p as any).profile_id));
     return profiles;
   }
 
-  async openProfile(profileId: string): Promise<any> {
+  async openProfile(profileId: string): Promise<ApiResponse> {
     const res = await this.apiRequest('/api/v2/profile-open', 'POST', { profile_id: profileId });
     if (res.error.code !== 0) {
       throw new ProfileConnectionError(`Connection failed for ${profileId}: ${res.error.message}`, profileId);

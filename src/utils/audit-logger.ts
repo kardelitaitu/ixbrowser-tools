@@ -14,7 +14,7 @@ interface LogEvent {
   profileId?: string | null;
   profileName?: string | null;
   success?: boolean | null;
-  data?: any;
+  data?: unknown;
   error?: string | null;
   duration?: number | null;
 }
@@ -34,7 +34,7 @@ export class AuditLogger {
       options.auditLogFile ||
       path.join(
         this.baseDir,
-        `audit_${new Date().toISOString().replace(/:/g, '-')}.jsonl`
+        `audit_${new Date().toISOString().replace(/:/g, '-')}.jsonl`,
       );
     this.sessionId = options.sessionId || `session_${Date.now()}`;
     this.enabled = options.enabled !== false;
@@ -69,7 +69,7 @@ export class AuditLogger {
     action: string,
     profileId: string | null = null,
     profileName: string | null = null,
-    data = {}
+    data: unknown = {},
   ): Promise<void> {
     await this.log({
       step,
@@ -86,9 +86,9 @@ export class AuditLogger {
     success: boolean,
     profileId: string | null = null,
     profileName: string | null = null,
-    data = {},
+    data: unknown = {},
     error: string | null = null,
-    duration: number | null = null
+    duration: number | null = null,
   ): Promise<void> {
     await this.log({
       step,
@@ -108,8 +108,8 @@ export class AuditLogger {
     success: boolean,
     profileId: string | null = null,
     profileName: string | null = null,
-    data = {},
-    error: string | null = null
+    data: unknown = {},
+    error: string | null = null,
   ): Promise<void> {
     await this.log({
       step,

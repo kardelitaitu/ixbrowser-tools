@@ -26,7 +26,7 @@ export class BrowserPool {
   constructor(
     ixBrowserClient: IxBrowserClient,
     auditLogger: AuditLogger,
-    options: BrowserPoolOptions = {}
+    options: BrowserPoolOptions = {},
   ) {
     this.ixBrowserClient = ixBrowserClient;
     this.auditLogger = auditLogger;
@@ -84,7 +84,7 @@ export class BrowserPool {
         } else {
           route.continue();
         }
-      }
+      },
     );
   }
 
@@ -102,18 +102,18 @@ export class BrowserPool {
           true,
           profileId,
           pooled.profileData.name,
-          { reused: true }
+          { reused: true },
         );
         return pooled;
       }
 
       this.cleanupPool();
 
-      const response = await retryProfileConnection(async () => {
+      const response = await retryProfileConnection(async() => {
         return await this.ixBrowserClient.openProfile(profileId);
       }, 3);
 
-      const { ws: wsEndpoint } = response.data;
+      const { ws: wsEndpoint } = response.data as any;
       const browser = await chromium.connectOverCDP(wsEndpoint);
       const context = browser.contexts()[0];
       const page = await context.newPage();
@@ -125,7 +125,7 @@ export class BrowserPool {
         browser,
         context,
         page,
-        profileData: { ...profile, ...response.data },
+        profileData: { ...profile, ...(response.data as any) },
         lastUsed: Date.now(),
       };
 
@@ -139,7 +139,7 @@ export class BrowserPool {
         true,
         profileId,
         profile.name,
-        { wsEndpoint, pooled: !!pooled }
+        { wsEndpoint, pooled: !!pooled },
       );
       return connection;
     } catch (error) {
@@ -150,7 +150,7 @@ export class BrowserPool {
         profileId,
         null,
         {},
-        (error as Error).message
+        (error as Error).message,
       );
       throw error;
     }

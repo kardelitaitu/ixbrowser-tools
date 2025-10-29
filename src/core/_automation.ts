@@ -6,6 +6,9 @@ import { AuditLogger } from '../utils/audit-logger';
 import * as fs from 'fs';
 import * as path from 'path';
 import { z } from 'zod';
+import { run as twitterFollowRun, type as twitterFollowType } from '../tasks/taskFollowTwitter';
+import { run as discordJoinRun, type as discordJoinType } from '../tasks/taskJoinDiscord';
+import { run as gmailReadRun, type as gmailReadType } from '../tasks/taskReadGmail';
 
 /**
  * @fileoverview Advanced Human-Like Browser Automation
@@ -22,17 +25,11 @@ const DEFAULT_CONFIG = {
   logging: true,
 };
 
-// Load all tasks from the tasks directory and create a registry
-const tasksDir = path.join(__dirname, '../tasks');
+// Task registry with statically imported tasks
 const taskRegistry = new Map<string, Function>();
-fs.readdirSync(tasksDir).forEach(file => {
-  if (file.endsWith('.ts')) {
-    const task = require(path.join(tasksDir, file));
-    if (task.type && task.run) {
-      taskRegistry.set(task.type, task.run);
-    }
-  }
-});
+taskRegistry.set(twitterFollowType, twitterFollowRun);
+taskRegistry.set(discordJoinType, discordJoinRun);
+taskRegistry.set(gmailReadType, gmailReadRun);
 
 const taskSchema = z.object({
   type: z.string(),
@@ -41,7 +38,7 @@ const taskSchema = z.object({
   stopOnFailure: z.boolean().optional(),
 });
 
-const loadTasks = async () => {
+const loadTasks = async() => {
   const tasksPath = path.join(__dirname, '../../config/tasks.json');
   try {
     const data = await fs.promises.readFile(tasksPath, 'utf8');
@@ -58,7 +55,7 @@ const loadTasks = async () => {
 };
 
 const ALL_TASKS = loadTasks();
-const SELECTORS = (async () => {
+const SELECTORS = (async() => {
   const selectorsPath = path.join(__dirname, '../../config/selectors.json');
   try {
     const data = await fs.promises.readFile(selectorsPath, 'utf8');
@@ -71,7 +68,7 @@ const SELECTORS = (async () => {
 
 export class BrowserAutomation {
   public config: typeof DEFAULT_CONFIG;
-  public logger: (message?: any, ...optionalParams: any[]) => void;
+  public logger: (_message?: any, ..._optionalParams: any[]) => void;
 
   constructor(config: Partial<typeof DEFAULT_CONFIG> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -115,7 +112,7 @@ export async function run(
   context: BrowserContext,
   page: Page,
   profileData: any,
-  auditLogger: AuditLogger | null = null
+  auditLogger: AuditLogger | null = null,
 ): Promise<AutomationResult> {
   const automation = new BrowserAutomation();
   const profileName = profileData.name || 'Unknown Profile';
@@ -131,7 +128,7 @@ export async function run(
       'automation',
       'task_orchestration',
       profileId,
-      profileName
+      profileName,
     );
 
     await logger.logAction(
@@ -140,7 +137,7 @@ export async function run(
       true,
       profileId,
       profileName,
-      { enhancements: ['human_methods', 'delay', 'type_variation'] }
+      { enhancements: ['human_methods', 'delay', 'type_variation'] },
     );
     const enhancedPage = enhancePage(page, {
       delay: automation.delay.bind(automation),
@@ -171,13 +168,13 @@ export async function run(
             task.options,
             profileId,
             profileName,
-            selectors
+            selectors,
           );
         } else {
           throw new Error(`Unknown task type: ${task.type}`);
         }
         prefixedLogger(
-          `Task ${task.type} for ${task.handle || 'N/A'} complete: ${taskResult.success ? '✅' : '❌'}. Result: ${JSON.stringify(taskResult)}`
+          `Task ${task.type} for ${task.handle || 'N/A'} complete: ${taskResult.success ? '✅' : '❌'}. Result: ${JSON.stringify(taskResult)}`,
         );
       } catch (taskError) {
         prefixedLogger(`Task ${task.type} for ${task.handle || 'N/A'} failed: ${(taskError as Error).message}`);
@@ -197,7 +194,7 @@ export async function run(
     const overallSuccess = successCount === allTaskResults.length && allTaskResults.length > 0;
 
     prefixedLogger(
-      `Dynamic task execution complete: ${successCount}/${allTaskResults.length} successes`
+      `Dynamic task execution complete: ${successCount}/${allTaskResults.length} successes`,
     );
 
     await logger.logStepEnd(
@@ -210,7 +207,7 @@ export async function run(
         tasks: allTaskResults,
         successCount,
         totalTasks: allTaskResults.length,
-      }
+      },
     );
     (logger as any)(`[${profileName}] Automation run finished. Overall success: ${overallSuccess}`);
 
@@ -233,7 +230,7 @@ export async function run(
       profileId,
       profileName,
       { tasks: allTaskResults },
-      (error as Error).message
+      (error as Error).message,
     );
     return {
       success: false,

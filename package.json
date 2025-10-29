@@ -11,8 +11,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src/**/*.ts *.js",
-    "lint:fix": "eslint src/**/*.ts *.js --fix",
+    "lint": "eslint src/**/*.ts --ignore-pattern .eslintrc.js --ignore-pattern jest.config.js --ignore-pattern monitoring/**",
+    "lint:fix": "eslint src/**/*.ts --ignore-pattern .eslintrc.js --ignore-pattern jest.config.js --ignore-pattern monitoring/** --fix",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

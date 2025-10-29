@@ -16,8 +16,8 @@ interface TaskJoinDiscordOptions {
 }
 
 interface AutomationInstance {
-  delay: (profile: 'short' | 'medium' | 'long') => Promise<void>;
-  logger: (msg: string) => void;
+  delay: (_profile: 'short' | 'medium' | 'long') => Promise<void>;
+  logger: (_msg: string) => void;
   auditLogger: AuditLogger;
 }
 
@@ -51,7 +51,7 @@ async function taskJoinDiscord(
   options: TaskJoinDiscordOptions = {},
   profileId: string | null = null,
   profileName: string | null = null,
-  selectors: any
+  selectors: any,
 ): Promise<TaskResult> {
   const {
     verifyOnly = DEFAULT_OPTIONS.verifyOnly,
@@ -67,7 +67,7 @@ async function taskJoinDiscord(
     'join_execution',
     profileId,
     profileName,
-    { inviteUrl, verifyOnly, waitForCaptcha }
+    { inviteUrl, verifyOnly, waitForCaptcha },
   );
 
   try {
@@ -79,7 +79,7 @@ async function taskJoinDiscord(
       true,
       profileId,
       profileName,
-      { url: inviteUrl }
+      { url: inviteUrl },
     );
     await page.goto(inviteUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
@@ -92,7 +92,7 @@ async function taskJoinDiscord(
       true,
       profileId,
       profileName,
-      { url: inviteUrl, status: 'loaded' }
+      { url: inviteUrl, status: 'loaded' },
     );
 
     if (delayBetweenActions) await automation.delay('short'); // Human pause after load
@@ -106,7 +106,7 @@ async function taskJoinDiscord(
         true,
         profileId,
         profileName,
-        { inviteUrl, action: 'already_joined' }
+        { inviteUrl, action: 'already_joined' },
       );
       return {
         success: true,
@@ -123,7 +123,7 @@ async function taskJoinDiscord(
         true,
         profileId,
         profileName,
-        { inviteUrl }
+        { inviteUrl },
       );
       return await verifyJoin(
         page,
@@ -132,7 +132,7 @@ async function taskJoinDiscord(
         auditLogger,
         profileId,
         profileName,
-        selectors
+        selectors,
       );
     }
 
@@ -153,12 +153,12 @@ async function taskJoinDiscord(
       true,
       profileId,
       profileName,
-      { inviteUrl, selectors: joinSelectors }
+      { inviteUrl, selectors: joinSelectors },
     );
 
     const { selectorUsed } = await retryWithBackoff(
       () => findElementSmart(page, joinSelectors, 10000),
-      { maxAttempts: 3, baseDelay: 1000 }
+      { maxAttempts: 3, baseDelay: 1000 },
     );
 
     logger(`Found join button using selector: ${selectorUsed}. Clicking...`);
@@ -168,7 +168,7 @@ async function taskJoinDiscord(
       true,
       profileId,
       profileName,
-      { inviteUrl, selector: selectorUsed }
+      { inviteUrl, selector: selectorUsed },
     );
     await (page as any).humanClick(selectorUsed);
 
@@ -183,7 +183,7 @@ async function taskJoinDiscord(
       auditLogger,
       profileId,
       profileName,
-      selectors
+      selectors,
     );
 
     if (verification.success) {
@@ -198,7 +198,7 @@ async function taskJoinDiscord(
           inviteUrl,
           action: 'joined',
           selector: selectorUsed,
-        }
+        },
       );
       return {
         success: true,
@@ -216,7 +216,7 @@ async function taskJoinDiscord(
       false,
       profileId,
       profileName,
-      { inviteUrl, error: (error as Error).message }
+      { inviteUrl, error: (error as Error).message },
     );
 
     // Fallback verify: Check if already joined
@@ -228,7 +228,7 @@ async function taskJoinDiscord(
       auditLogger,
       profileId,
       profileName,
-      selectors
+      selectors,
     );
     if (fallbackVerify.success) {
       logger(`  ℹ️  Already joined Discord server from ${inviteUrl} – skipping OK`);
@@ -238,7 +238,7 @@ async function taskJoinDiscord(
         true,
         profileId,
         profileName,
-        { inviteUrl, action: 'already_joined' }
+        { inviteUrl, action: 'already_joined' },
       );
       return {
         success: true,
@@ -252,7 +252,7 @@ async function taskJoinDiscord(
       false,
       profileId,
       profileName,
-      { inviteUrl, error: (error as Error).message }
+      { inviteUrl, error: (error as Error).message },
     );
     return { success: false, error: (error as Error).message };
   }
@@ -292,7 +292,7 @@ async function verifyJoin(
   auditLogger: AuditLogger | null = null,
   profileId: string | null = null,
   profileName: string | null = null,
-  selectors: any
+  selectors: any,
 ): Promise<TaskResult> {
   const verifySelectors = (selectors as any).discord.verifyJoin;
 
@@ -303,13 +303,13 @@ async function verifyJoin(
     true,
     profileId,
     profileName,
-    { inviteUrl, selectors: verifySelectors }
+    { inviteUrl, selectors: verifySelectors },
   );
 
   try {
     const { selectorUsed } = await retryWithBackoff(
       () => findElementSmart(page, verifySelectors, 5000),
-      { maxAttempts: 2, baseDelay: 500 }
+      { maxAttempts: 2, baseDelay: 500 },
     );
     automation.logger(`  Verified joined Discord server from ${inviteUrl} via ${selectorUsed}`);
     await auditLogger?.logAction(
@@ -322,7 +322,7 @@ async function verifyJoin(
         inviteUrl,
         verification: 'server_joined',
         selector: selectorUsed,
-      }
+      },
     );
     return { success: true, data: { verification: 'server_joined' } };
   } catch (err) {
@@ -337,7 +337,7 @@ async function verifyJoin(
         true,
         profileId,
         profileName,
-        { inviteUrl, verification: 'redirected_to_channel', url: currentUrl }
+        { inviteUrl, verification: 'redirected_to_channel', url: currentUrl },
       );
       return { success: true, data: { verification: 'redirected_to_channel' } };
     }
@@ -348,7 +348,7 @@ async function verifyJoin(
       false,
       profileId,
       profileName,
-      { inviteUrl, error: 'No server content found' }
+      { inviteUrl, error: 'No server content found' },
     );
     return { success: false, error: 'No server content found' };
   }

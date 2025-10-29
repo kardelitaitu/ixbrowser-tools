@@ -9,16 +9,16 @@
 export class AutomationError extends Error {
   public type: string;
   public retryable: boolean;
-  public metadata: any;
+  public metadata: unknown;
   public timestamp: string;
 
-  constructor (message: string, type: string, retryable = false, metadata = {}) {
-    super(message)
-    this.name = this.constructor.name
-    this.type = type
-    this.retryable = retryable
-    this.metadata = metadata
-    this.timestamp = new Date().toISOString()
+  constructor(message: string, type: string, retryable = false, metadata: unknown = {}) {
+    super(message);
+    this.name = this.constructor.name;
+    this.type = type;
+    this.retryable = retryable;
+    this.metadata = metadata;
+    this.timestamp = new Date().toISOString();
   }
 }
 
@@ -26,8 +26,8 @@ export class AutomationError extends Error {
  * Error for profile connection failures (e.g., WebSocket connection issues)
  */
 export class ProfileConnectionError extends AutomationError {
-  constructor (message: string, profileId: string, metadata = {}) {
-    super(message, 'profile_connection', true, { ...metadata, profileId })
+  constructor(message: string, profileId: string, metadata = {}) {
+    super(message, 'profile_connection', true, { ...metadata, profileId });
   }
 }
 
@@ -35,8 +35,8 @@ export class ProfileConnectionError extends AutomationError {
  * Error for automation timeouts (e.g., page load or operation timeout)
  */
 export class AutomationTimeoutError extends AutomationError {
-  constructor (message: string, timeoutMs: number, metadata = {}) {
-    super(message, 'automation_timeout', true, { ...metadata, timeoutMs })
+  constructor(message: string, timeoutMs: number, metadata = {}) {
+    super(message, 'automation_timeout', true, { ...metadata, timeoutMs });
   }
 }
 
@@ -44,8 +44,8 @@ export class AutomationTimeoutError extends AutomationError {
  * Error for network-related failures (e.g., API requests, connectivity)
  */
 export class NetworkError extends AutomationError {
-  constructor (message: string, statusCode: number, metadata = {}) {
-    super(message, 'network_error', true, { ...metadata, statusCode })
+  constructor(message: string, statusCode: number, metadata = {}) {
+    super(message, 'network_error', true, { ...metadata, statusCode });
   }
 }
 
@@ -53,8 +53,8 @@ export class NetworkError extends AutomationError {
  * Error for element not found in DOM (e.g., selector failures)
  */
 export class ElementNotFoundError extends AutomationError {
-  constructor (message: string, selector: string, url: string, metadata = {}) {
-    super(message, 'element_not_found', false, { ...metadata, selector, url })
+  constructor(message: string, selector: string, url: string, metadata = {}) {
+    super(message, 'element_not_found', false, { ...metadata, selector, url });
   }
 }
 
@@ -62,8 +62,8 @@ export class ElementNotFoundError extends AutomationError {
  * Error for task-specific failures (e.g., follow task errors)
  */
 export class TaskError extends AutomationError {
-  constructor (message: string, taskType: string, metadata = {}) {
-    super(message, 'task_error', false, { ...metadata, taskType })
+  constructor(message: string, taskType: string, metadata = {}) {
+    super(message, 'task_error', false, { ...metadata, taskType });
   }
 }
 
@@ -71,7 +71,7 @@ export class TaskError extends AutomationError {
  * Error for verification failures (e.g., follow confirmation)
  */
 export class VerificationError extends AutomationError {
-  constructor (message: string, verificationType: string, metadata = {}) {
-    super(message, 'verification_error', false, { ...metadata, verificationType })
+  constructor(message: string, verificationType: string, metadata = {}) {
+    super(message, 'verification_error', false, { ...metadata, verificationType });
   }
 }

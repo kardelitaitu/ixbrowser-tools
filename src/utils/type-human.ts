@@ -6,7 +6,7 @@ import { Page } from 'playwright';
 
 interface HumanTypeOptions {
   typeVariation?: boolean;
-  delay?: (profile: 'short' | 'medium' | 'long') => Promise<void>;
+  delay?: (_profile: 'short' | 'medium' | 'long') => Promise<void>;
   typoProbability?: number;
   minKeyPress?: number;
   maxKeyPress?: number;
@@ -24,7 +24,7 @@ export async function humanType(
   page: Page,
   selector: string,
   text: string,
-  options: HumanTypeOptions = {}
+  options: HumanTypeOptions = {},
 ): Promise<void> {
   const {
     typeVariation = true,
@@ -48,11 +48,11 @@ export async function humanType(
         // Simulate typos
         if (Math.random() < typoProbability && i < text.length - 1) {
           const randomChar = String.fromCharCode(
-            97 + Math.floor(Math.random() * 26)
+            97 + Math.floor(Math.random() * 26),
           ); // a-z
           await page.keyboard.down(randomChar);
           await page.waitForTimeout(
-            Math.random() * (maxKeyPress - minKeyPress) + minKeyPress
+            Math.random() * (maxKeyPress - minKeyPress) + minKeyPress,
           );
           await page.keyboard.up(randomChar);
           await page.waitForTimeout(Math.random() * 50 + 20); // Delay after typo
@@ -63,7 +63,7 @@ export async function humanType(
         // Simulate variable key press and release
         await page.keyboard.down(char);
         await page.waitForTimeout(
-          Math.random() * (maxKeyPress - minKeyPress) + minKeyPress
+          Math.random() * (maxKeyPress - minKeyPress) + minKeyPress,
         );
         await page.keyboard.up(char);
 

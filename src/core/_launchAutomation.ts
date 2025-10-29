@@ -43,7 +43,7 @@ class IxBrowserAutomation {
     this.logFile = path.join(
       __dirname,
       'logs',
-      `_launchAutomation_${new Date().toISOString().replace(/:/g, '-')}.log`
+      `_launchAutomation_${new Date().toISOString().replace(/:/g, '-')}.log`,
     );
     this.timeout = options.timeout || 300000; // 5 minutes default
     this.auditLogger = new AuditLogger({
@@ -56,14 +56,14 @@ class IxBrowserAutomation {
       this.auditLogger,
       {
         maxSize: options.poolMaxSize || 10,
-        timeout: options.poolTimeout || 60000
-      }
+        timeout: options.poolTimeout || 60000,
+      },
     );
     this.profileManager = new ProfileManager(this.ixBrowserClient, this.auditLogger);
     this.automationRunner = new AutomationRunner(
       this.browserPool,
       this.auditLogger,
-      { timeout: this.timeout }
+      { timeout: this.timeout },
     );
   }
 
@@ -83,8 +83,6 @@ class IxBrowserAutomation {
       console.error('Logging failed:', error);
     }
   }
-
-
 
   /**
    * Runs automation in parallel across all opened profiles.
@@ -122,7 +120,7 @@ async function main(): Promise<{results: any[], summary: any}> {
     const { results, summary } = await automation.runParallelAutomation();
 
     await automation.log(
-      `Automation completed. Success rate: ${summary.successRate}%`
+      `Automation completed. Success rate: ${summary.successRate}%`,
     );
     await automation.log('=== AUTOMATION SESSION COMPLETED ===');
     await automation.auditLogger.logStepEnd(
@@ -131,7 +129,7 @@ async function main(): Promise<{results: any[], summary: any}> {
       true,
       null,
       null,
-      { summary }
+      { summary },
     );
 
     return { results, summary };
@@ -144,7 +142,7 @@ async function main(): Promise<{results: any[], summary: any}> {
       null,
       null,
       {},
-      (error as Error).message
+      (error as Error).message,
     );
     await automation.cleanup();
     process.exit(1);

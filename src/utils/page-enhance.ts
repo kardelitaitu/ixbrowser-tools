@@ -8,8 +8,8 @@ import { scrollIntoViewIfNeeded } from './viewport-scrollIntoView';
  */
 
 interface EnhancePageOptions {
-  delay?: (profile?: 'short' | 'medium' | 'long') => Promise<void>;
-  logger?: (msg: string) => void;
+  delay?: (_profile?: 'short' | 'medium' | 'long') => Promise<void>;
+  logger?: (_msg: string) => void;
   typeVariation?: boolean;
 }
 
@@ -23,7 +23,7 @@ interface EnhancePageOptions {
  */
 export function enhancePage(
   page: Page,
-  options: EnhancePageOptions = {}
+  options: EnhancePageOptions = {},
 ): Page {
   const { delay, logger = () => {}, typeVariation = true } = options;
 
@@ -34,22 +34,22 @@ export function enhancePage(
 
   // Wrap humanClick to ensure the target is scrolled into view before moving/clicking
   const baseHumanClick = (page as any).humanClick;
-  (page as any).humanClick = async (selector: string) => {
+  (page as any).humanClick = async(selector: string) => {
     try {
       await scrollIntoViewIfNeeded(page, selector, { block: 'center', delay });
     } catch (e) {
       logger(
-        `scrollIntoViewIfNeeded warning for ${selector}: ${e && (e as Error).message ? (e as Error).message : e}`
+        `scrollIntoViewIfNeeded warning for ${selector}: ${e && (e as Error).message ? (e as Error).message : e}`,
       );
     }
     return baseHumanClick(selector);
   };
 
   // Add wrappers wired to injected helpers (so they use the configured delays)
-  (page as any).humanType = async (
+  (page as any).humanType = async(
     selector: string,
     text: string,
-    typeOptions: any
+    typeOptions: any,
   ) =>
     humanType(page, selector, text, { ...typeOptions, typeVariation, delay });
 

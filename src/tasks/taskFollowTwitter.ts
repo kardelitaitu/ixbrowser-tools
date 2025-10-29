@@ -16,8 +16,8 @@ interface TaskFollowTwitterOptions {
 }
 
 interface AutomationInstance {
-  delay: (profile: 'short' | 'medium' | 'long') => Promise<void>;
-  logger: (msg: string) => void;
+  delay: (_profile: 'short' | 'medium' | 'long') => Promise<void>;
+  logger: (_msg: string) => void;
   auditLogger: AuditLogger;
 }
 
@@ -51,7 +51,7 @@ async function taskFollowTwitter(
   options: TaskFollowTwitterOptions = {},
   profileId: string | null = null,
   profileName: string | null = null,
-  selectors: any
+  selectors: any,
 ): Promise<TaskResult> {
   const {
     likeFirstTweet = DEFAULT_OPTIONS.likeFirstTweet,
@@ -69,7 +69,7 @@ async function taskFollowTwitter(
     'follow_execution',
     profileId,
     profileName,
-    { handle: username, likeFirstTweet, verifyOnly }
+    { handle: username, likeFirstTweet, verifyOnly },
   );
 
   try {
@@ -81,7 +81,7 @@ async function taskFollowTwitter(
       true,
       profileId,
       profileName,
-      { url: profileUrl }
+      { url: profileUrl },
     );
     await page.goto(profileUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
     // Wait for a key element on the Twitter profile page to ensure it's loaded
@@ -93,7 +93,7 @@ async function taskFollowTwitter(
       true,
       profileId,
       profileName,
-      { url: profileUrl, status: 'loaded' }
+      { url: profileUrl, status: 'loaded' },
     );
 
     // Verify login status by checking for user-specific elements
@@ -108,7 +108,7 @@ async function taskFollowTwitter(
         true,
         profileId,
         profileName,
-        { verification: 'user_nav_found' }
+        { verification: 'user_nav_found' },
       );
     } catch (loginErr) {
       const errorMsg = 'Not logged into Twitter/X or user navigation not found';
@@ -119,7 +119,7 @@ async function taskFollowTwitter(
         false,
         profileId,
         profileName,
-        { error: errorMsg, details: (loginErr as Error).message }
+        { error: errorMsg, details: (loginErr as Error).message },
       );
       throw new Error(errorMsg);
     }
@@ -134,7 +134,7 @@ async function taskFollowTwitter(
       true,
       profileId,
       profileName,
-      { direction: 'down', distance: 400 }
+      { direction: 'down', distance: 400 },
     );
     await (page as any).humanScroll('down', 400);
     await automation.delay('medium');
@@ -149,13 +149,13 @@ async function taskFollowTwitter(
         true,
         profileId,
         profileName,
-        { handle: username }
+        { handle: username },
       );
       const likeSelectors = (selectors as any).twitter.like;
       try {
         const { selectorUsed } = await retryWithBackoff(
           () => findElementSmart(page, likeSelectors, 5000),
-          { maxAttempts: 2, baseDelay: 500 }
+          { maxAttempts: 2, baseDelay: 500 },
         );
         await (page as any).humanClick(selectorUsed);
         logger(`  ❤️ Liked first tweet on ${username}`);
@@ -165,7 +165,7 @@ async function taskFollowTwitter(
           true,
           profileId,
           profileName,
-          { handle: username, selector: selectorUsed }
+          { handle: username, selector: selectorUsed },
         );
         await automation.delay('short');
       } catch (likeErr) {
@@ -176,7 +176,7 @@ async function taskFollowTwitter(
           false,
           profileId,
           profileName,
-          { handle: username, error: (likeErr as Error).message }
+          { handle: username, error: (likeErr as Error).message },
         );
       }
     }
@@ -190,7 +190,7 @@ async function taskFollowTwitter(
         true,
         profileId,
         profileName,
-        { handle: username }
+        { handle: username },
       );
       return await verifyFollow(
         page,
@@ -199,7 +199,7 @@ async function taskFollowTwitter(
         auditLogger,
         profileId,
         profileName,
-        selectors
+        selectors,
       );
     }
 
@@ -213,11 +213,11 @@ async function taskFollowTwitter(
       true,
       profileId,
       profileName,
-      { handle: username, selectors: followSelectors }
+      { handle: username, selectors: followSelectors },
     );
     const { selectorUsed } = await retryWithBackoff(
       () => findElementSmart(page, followSelectors, 10000),
-      { maxAttempts: 2, baseDelay: 1000 }
+      { maxAttempts: 2, baseDelay: 1000 },
     );
     logger(`Found follow button using selector: ${selectorUsed}. Clicking...`);
     await auditLogger?.logAction(
@@ -226,7 +226,7 @@ async function taskFollowTwitter(
       true,
       profileId,
       profileName,
-      { handle: username, selector: selectorUsed }
+      { handle: username, selector: selectorUsed },
     );
     await (page as any).humanClick(selectorUsed);
 
@@ -241,7 +241,7 @@ async function taskFollowTwitter(
       auditLogger,
       profileId,
       profileName,
-      selectors
+      selectors,
     );
     if (verification.success) {
       logger(`✅ Successfully followed ${username} (via ${selectorUsed})`);
@@ -256,7 +256,7 @@ async function taskFollowTwitter(
           action: 'followed',
           liked: likeFirstTweet,
           selector: selectorUsed,
-        }
+        },
       );
       return {
         success: true,
@@ -274,7 +274,7 @@ async function taskFollowTwitter(
       false,
       profileId,
       profileName,
-      { handle: username, error: (error as Error).message }
+      { handle: username, error: (error as Error).message },
     );
 
     // Fallback verify: Check if already following
@@ -286,7 +286,7 @@ async function taskFollowTwitter(
       auditLogger,
       profileId,
       profileName,
-      selectors
+      selectors,
     );
     if (fallbackVerify.success) {
       logger(`  ℹ️  Already following ${username} – skipping OK`);
@@ -296,7 +296,7 @@ async function taskFollowTwitter(
         true,
         profileId,
         profileName,
-        { handle: username, action: 'already_following' }
+        { handle: username, action: 'already_following' },
       );
       return {
         success: true,
@@ -310,7 +310,7 @@ async function taskFollowTwitter(
       false,
       profileId,
       profileName,
-      { handle: username, error: (error as Error).message }
+      { handle: username, error: (error as Error).message },
     );
     return { success: false, error: (error as Error).message };
   }
@@ -334,7 +334,7 @@ async function verifyFollow(
   auditLogger: AuditLogger | null = null,
   profileId: string | null = null,
   profileName: string | null = null,
-  selectors: any
+  selectors: any,
 ): Promise<TaskResult> {
   const cleanHandle = username.replace('@', '');
   const verifySelectors = (selectors as any).twitter.following.map((s: string) => s.replace('{handle}', cleanHandle));
@@ -346,13 +346,13 @@ async function verifyFollow(
     true,
     profileId,
     profileName,
-    { handle: username, selectors: verifySelectors }
+    { handle: username, selectors: verifySelectors },
   );
 
   try {
     const { selectorUsed } = await retryWithBackoff(
       () => findElementSmart(page, verifySelectors, 5000),
-      { maxAttempts: 2, baseDelay: 500 }
+      { maxAttempts: 2, baseDelay: 500 },
     );
     automation.logger(`  Verified following ${username} via ${selectorUsed}`);
     await auditLogger?.logAction(
@@ -365,7 +365,7 @@ async function verifyFollow(
         handle: username,
         verification: 'following_state',
         selector: selectorUsed,
-      }
+      },
     );
     return { success: true, data: { verification: 'following_state' } };
   } catch (err) {
@@ -380,7 +380,7 @@ async function verifyFollow(
         true,
         profileId,
         profileName,
-        { handle: username, verification: 'profile_loaded', url: currentUrl }
+        { handle: username, verification: 'profile_loaded', url: currentUrl },
       );
       return { success: true, data: { verification: 'profile_loaded' } };
     }
@@ -391,7 +391,7 @@ async function verifyFollow(
       false,
       profileId,
       profileName,
-      { handle: username, error: 'No following indicator found' }
+      { handle: username, error: 'No following indicator found' },
     );
     return { success: false, error: 'No following indicator found' };
   }

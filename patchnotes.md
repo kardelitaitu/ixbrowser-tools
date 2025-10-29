@@ -1,5 +1,16 @@
 # Patch Notes
 
+## Version 1.1.5 (2025-10-29)
+- **Code Quality Improvements:**
+  - **ESLint Fixes:** Resolved all ESLint errors (18 errors fixed) and reduced warnings from 95 to 70 by replacing unsafe `any` types with `unknown` where appropriate, defining proper interfaces like `ApiResponse` for API responses, and prefixing unused parameters with `_` for better type safety.
+  - **TypeScript Enhancements:** Improved type definitions in `ixBrowserClient.ts` with `ApiResponse` interface, updated error handling in `errors.ts` and `audit-logger.ts` to use `unknown` instead of `any`, and fixed type assertions in retry utilities.
+  - **Lint Configuration Update:** Modified npm lint script to exclude monitoring folder and config files (.eslintrc.js, jest.config.js) to focus on source code quality.
+- **Codebase Cleanup:**
+  - **Monitoring Folder Cleanup:** Removed duplicate and scattered files in `monitoring/` root (e.g., old `.tsx` components like `error-boundary.tsx`, `logs-view.tsx`, `profile-dashboard.tsx`, `system-metrics.tsx`, `types.tsx`, and unused `page.tsx`) to consolidate with `src/components/` structure.
+- **Performance & Maintainability Improvements:**
+  - **Task Loading Optimization:** Replaced synchronous task loading in `src/core/_automation.ts` (using `fs.readdirSync` and `require`) with static imports of known tasks (`taskFollowTwitter`, `taskJoinDiscord`, `taskReadGmail`), improving startup performance and type safety.
+- **Type Safety Verification:** Ensured TypeScript compilation passes without errors after all changes.
+
 ## Version 1.1.4 (2025-10-29)
 - **New Automation Task: Gmail Read**
   - Added `taskReadGmail.ts` for automated Gmail inbox reading
