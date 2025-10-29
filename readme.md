@@ -41,37 +41,37 @@ Our secret sauce? We simulate **human-like browser interactions** (think natural
 Here's a map of the workshop:
 ```
 ixbrowser-playwright/
-├── src/                    # Source code for the automation suite
-│   ├── core/                # Core orchestration and configuration modules
+├── src/                         # Source code for the automation suite
+│   ├── core/                    # Core orchestration and configuration modules
 │   │   ├── _launchAutomation.ts # Main entry point; orchestrates parallel runs
 │   │   ├── _automation.ts       # Per-profile workflow execution engine
 │   │   ├── config.ts            # Centralized configuration service
 │   │   ├── browser-pool.ts      # Manages pooled browser connections
 │   │   ├── profile-manager.ts   # Handles ixBrowser profile management
 │   │   └── automation-runner.ts # Orchestrates individual profile automation
-│   ├── utils/               # Reusable helper functions and utilities
+│   ├── utils/                   # Reusable helper functions and utilities
 │   │   ├── humanSimulation.ts   # Human-like interaction utilities
 │   │   ├── element-finder.ts    # Smart element detection
 │   │   ├── unified-logger.ts    # Consistent logging interface
 │   │   ├── errors.ts            # Custom error classes
 │   │   └── ...                  # Other utilities (delay, page enhancement, retry)
-│   ├── tasks/               # Specific automation tasks and base class
+│   ├── tasks/                   # Specific automation tasks and base class
 │   │   ├── BaseTask.ts          # Abstract base class for all tasks
 │   │   ├── taskFollowTwitter.ts # Example: Twitter follow logic
 │   │   ├── taskJoinDiscord.ts   # Example: Discord join logic
 │   │   └── taskReadGmail.ts     # Example: Gmail read logic
-│   └── types/               # Centralized TypeScript type definitions
+│   └── types/                   # Centralized TypeScript type definitions
 │       ├── core.ts              # Types for core modules
 │       └── tasks.ts             # Types for automation tasks
-├── config/                  # Application configuration files
+├── config/                      # Application configuration files
 │   ├── tasks.json               # Externalized task configuration
 │   └── selectors.json           # Externalized element selectors
-├── monitoring/              # Real-time monitoring dashboard (React/Node.js)
-├── logs/                    # Runtime logs and outputs (audit_*.jsonl, *.log)
-├── __launchAutomation.bat   # Windows quick launcher script
-├── package.json             # Dependencies and npm scripts
-├── tsconfig.json            # TypeScript configuration
-└── readme.md                # This file
+├── monitoring/                  # Real-time monitoring dashboard (React/Node.js)
+├── logs/                        # Runtime logs and outputs (audit_*.jsonl, *.log)
+├── __launchAutomation.bat       # Windows quick launcher script
+├── package.json                 # Dependencies and npm scripts
+├── tsconfig.json                # TypeScript configuration
+└── readme.md                    # This file
 ```
 ## 🚀 Part 2: Let's Get You Started! (Tutorial)
 
@@ -84,7 +84,7 @@ ixbrowser-playwright/
     ```bash
     # Clone the project
     git clone <repo-url>
-    cd ixbrowser-playwright
+    cd ixbrowser-tools
 
     # Install the main automation dependencies
     npm install
