@@ -96,6 +96,34 @@ async function taskFollowTwitter(
       { url: profileUrl, status: 'loaded' }
     );
 
+    // Verify login status by checking for user-specific elements
+    try {
+      // Check if we can find user navigation or profile elements that indicate login
+      const userNavSelector = '[data-testid="AppTabBar_Profile_Link"]';
+      await page.waitForSelector(userNavSelector, { state: 'visible', timeout: 5000 });
+      logger('✅ Verified login status - user navigation found');
+      await auditLogger?.logAction(
+        'task_follow',
+        'verify_login',
+        true,
+        profileId,
+        profileName,
+        { verification: 'user_nav_found' }
+      );
+    } catch (loginErr) {
+      const errorMsg = 'Not logged into Twitter/X or user navigation not found';
+      logger(`❌ ${errorMsg}. Error: ${(loginErr as Error).message}`);
+      await auditLogger?.logAction(
+        'task_follow',
+        'verify_login',
+        false,
+        profileId,
+        profileName,
+        { error: errorMsg, details: (loginErr as Error).message }
+      );
+      throw new Error(errorMsg);
+    }
+
     if (delayBetweenActions) await automation.delay('short'); // Human pause after load
 
     // Scroll to reveal buttons (load dynamic content)

@@ -1,28 +1,26 @@
-import { ProfileData, LogEntry, MonitoringData, TaskProgress } from '../types'
 import si from 'systeminformation'
 
 const LOGS_DIR = '../logs'
-const PROJECT_ROOT = '../'
 
 export class DataService {
-  private static instance: DataService
+  static instance = null
 
-  static getInstance(): DataService {
+  static getInstance() {
     if (!DataService.instance) {
       DataService.instance = new DataService()
     }
     return DataService.instance
   }
 
-  async getProfilesData(): Promise<ProfileData[]> {
+  async getProfilesData() {
     // Read from logs/audit_*.jsonl for profile data
     try {
       const fs = await import('fs').then(m => m.promises)
       const files = await fs.readdir(LOGS_DIR)
       const auditFiles = files.filter(f => f.startsWith('audit_') && f.endsWith('.jsonl'))
 
-      const profiles: ProfileData[] = []
-      const profileMap = new Map<string, ProfileData>()
+      const profiles = []
+      const profileMap = new Map()
 
       for (const file of auditFiles) {
         const content = await fs.readFile(`${LOGS_DIR}/${file}`, 'utf-8')
@@ -42,7 +40,7 @@ export class DataService {
                 })
               }
 
-              const profile = profileMap.get(profileId)!
+              const profile = profileMap.get(profileId)
 
               // Update profile status based on step
               if (entry.step === 'profile' && entry.action === 'automation_run_start') {
@@ -67,14 +65,14 @@ export class DataService {
     }
   }
 
-  async getLogs(): Promise<LogEntry[]> {
+  async getLogs() {
     // Read from logs/*.log for general logs
     try {
       const fs = await import('fs').then(m => m.promises)
       const files = await fs.readdir(LOGS_DIR)
       const logFiles = files.filter(f => f.endsWith('.log'))
 
-      const logs: LogEntry[] = []
+      const logs = []
       for (const file of logFiles) {
         const content = await fs.readFile(`${LOGS_DIR}/${file}`, 'utf-8')
         const lines = content.split('\n')
@@ -84,7 +82,7 @@ export class DataService {
             if (match) {
               logs.push({
                 timestamp: match[1],
-                level: match[2] as LogEntry['level'],
+                level: match[2],
                 message: match[3]
               })
             }
@@ -98,7 +96,7 @@ export class DataService {
     }
   }
 
-  async getSystemMetrics(): Promise<MonitoringData['systemMetrics']> {
+  async getSystemMetrics() {
     try {
       // Real CPU usage
       const cpu = await si.cpu()
@@ -140,14 +138,14 @@ export class DataService {
     }
   }
 
-  async getTaskProgress(): Promise<{ [profileId: string]: TaskProgress }> {
+  async getTaskProgress() {
     // Parse audit logs for current task progress
     try {
       const fs = await import('fs').then(m => m.promises)
       const files = await fs.readdir(LOGS_DIR)
       const auditFiles = files.filter(f => f.startsWith('audit_') && f.endsWith('.jsonl'))
 
-      const taskProgress: { [profileId: string]: TaskProgress } = {}
+      const taskProgress = {}
 
       for (const file of auditFiles) {
         const content = await fs.readFile(`${LOGS_DIR}/${file}`, 'utf-8')
@@ -192,8 +190,8 @@ export class DataService {
     }
   }
 
-  private calculateProgress(step: string, action: string): number {
-    const progressMap: { [key: string]: { [key: string]: number } } = {
+  calculateProgress(step, action) {
+    const progressMap = {
       'task_read_gmail': {
         'gmail_read_execution_start': 0,
         'navigate_inbox': 10,
@@ -206,10 +204,11 @@ export class DataService {
       'task_follow': {
         'follow_execution_start': 0,
         'navigate_profile': 10,
-        'scroll_reveal': 20,
-        'like_first_tweet': 40,
-        'find_follow_button': 60,
-        'click_follow_button': 80,
+        'verify_login': 15,
+        'scroll_reveal': 25,
+        'like_first_tweet': 50,
+        'find_follow_button': 70,
+        'click_follow_button': 85,
         'follow_execution_end': 100,
       },
       'task_join_discord': {
@@ -224,8 +223,8 @@ export class DataService {
     return progressMap[step]?.[action] || 0
   }
 
-  private mapActionToStatus(step: string, action: string): TaskProgress['status'] {
-    const statusMap: { [key: string]: TaskProgress['status'] } = {
+  mapActionToStatus(step, action) {
+    const statusMap = {
       'gmail_read_execution_start': 'starting',
       'navigate_inbox': 'navigating',
       'verify_login': 'verifying',
@@ -234,6 +233,7 @@ export class DataService {
       'simulate_reading': 'reading',
       'follow_execution_start': 'starting',
       'navigate_profile': 'navigating',
+      'verify_login': 'verifying',
       'scroll_reveal': 'waiting',
       'like_first_tweet': 'clicking',
       'find_follow_button': 'clicking',
@@ -248,7 +248,7 @@ export class DataService {
     return statusMap[action] || 'waiting'
   }
 
-  async getAllData(): Promise<MonitoringData> {
+  async getAllData() {
     const [profiles, logs, systemMetrics, taskProgress] = await Promise.all([
       this.getProfilesData(),
       this.getLogs(),

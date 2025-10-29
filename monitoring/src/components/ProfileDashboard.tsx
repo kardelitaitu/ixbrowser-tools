@@ -1,11 +1,12 @@
 import type React from "react"
-import type { ProfileData } from "../../types"
+import type { ProfileData, TaskProgress } from "../../types"
 
 interface Props {
   profiles: ProfileData[]
+  taskProgress: { [profileId: string]: TaskProgress }
 }
 
-const ProfileDashboard: React.FC<Props> = ({ profiles }) => {
+const ProfileDashboard: React.FC<Props> = ({ profiles, taskProgress }) => {
   const statusConfig = {
     running: {
       color: "from-emerald-500 to-teal-500",
@@ -62,6 +63,43 @@ const ProfileDashboard: React.FC<Props> = ({ profiles }) => {
                       {profile.status.toUpperCase()}
                     </span>
                   </div>
+
+                  {taskProgress[profile.profileId] && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-slate-400">Current Task</span>
+                        <span className="text-xs text-slate-300 capitalize">
+                          {taskProgress[profile.profileId].taskType.replace('task_', '').replace('_', ' ')}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-500 capitalize">
+                            {taskProgress[profile.profileId].currentAction.replace('_', ' ')}
+                          </span>
+                          <span className="text-xs text-slate-400">
+                            {taskProgress[profile.profileId].progress}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-700/50 rounded-full h-1.5">
+                          <div
+                            className="bg-gradient-to-r from-blue-500 to-cyan-500 h-1.5 rounded-full transition-all duration-300"
+                            style={{ width: `${taskProgress[profile.profileId].progress}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {taskProgress[profile.profileId].data?.emailAddress && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-500">Email</span>
+                          <span className="text-xs text-slate-400 truncate max-w-32">
+                            {taskProgress[profile.profileId].data.emailAddress}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {profile.duration && (
                     <div className="flex items-center justify-between">

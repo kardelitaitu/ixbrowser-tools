@@ -12,5 +12,20 @@
     "options": {
       "likeFirstTweet": false
     }
+  },
+   {
+    "type": "discordJoin",
+    "inviteUrl": "https://discord.gg/example123",
+    "options": {
+      "verifyOnly": false,
+      "waitForCaptcha": false
+    }
+  },
+  {
+    "type": "gmailRead",
+    "options": {
+      "randomDelay": true,
+      "verifyOnly": false
+    }
   }
 ]

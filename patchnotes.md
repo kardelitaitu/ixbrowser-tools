@@ -1,6 +1,49 @@
 # Patch Notes
 
-## Version 1.1.1 (2025-10-29)
+## Version 1.1.4 (2025-10-29)
+- **New Automation Task: Gmail Read**
+  - Added `taskReadGmail.ts` for automated Gmail inbox reading
+  - Navigates to Gmail inbox, waits for load, adds random delay, clicks first mail
+  - **Login Verification**: Checks page title for "Inbox" and email address format
+  - Extracts and logs the logged-in email address for verification
+  - Returns email address in task result data for further usage
+  - **Reading Simulation**: Adds 2-3 minute random delay after clicking mail to simulate reading
+  - Supports verification-only mode and configurable delays
+  - Added Gmail selectors to `config/selectors.json` for first mail element
+  - Updated task configuration to include Gmail read task
+- **Enhanced Twitter Follow Task**
+  - **Login Verification**: Added login status verification for Twitter/X tasks
+  - Checks for user navigation elements to confirm authentication
+  - Enhanced audit logging for login verification steps
+  - Improved error handling for unauthenticated sessions
+- **Enhanced Monitoring Tool with Task Progress**
+  - **Real-time Task Progress Tracking**: Added detailed task progress display in monitoring dashboard
+  - **Progress Bars**: Visual progress bars showing task completion percentage (0-100%)
+  - **Task Status Indicators**: Shows current task action (navigating, verifying, clicking, reading, etc.)
+  - **Task Metadata**: Displays task-specific data like email addresses, reading times, selectors used
+  - **Audit Log Parsing**: Enhanced data service to parse detailed audit logs for real-time progress
+  - **Progress Calculation**: Intelligent progress mapping for Gmail, Twitter, and Discord tasks
+  - **Updated Types**: Added TaskProgress interface and enhanced MonitoringData structure
+
+## Version 1.1.3 (2025-10-29)
+- **New Automation Task: Discord Server Join**
+  - Added `taskJoinDiscord.ts` for automated Discord server joining via invite links
+  - Supports human-like interactions with configurable delays and verification
+  - Includes fallback verification for already-joined servers
+  - Added Discord selectors to `config/selectors.json`
+  - Updated task configuration schema to support `inviteUrl` parameter
+  - Enhanced ESLint configuration for TypeScript support with proper rules
+  - Fixed TypeScript compilation issues in config validation
+
+## Version 1.1.2 (2025-10-29)
+- **Codebase Improvements & Testing Infrastructure:**
+  - **Testing Framework Setup:** Added Jest and ts-jest for comprehensive unit testing with TypeScript support
+  - **Test Scripts:** Added `test:watch` and `test:coverage` npm scripts for continuous testing and coverage reporting
+  - **Test Configuration:** Created Jest configuration with TypeScript support and test utilities
+  - **Sample Tests:** Added example test structure for browser-pool module
+  - **Lint Configuration:** Updated ESLint to include TypeScript files (*.ts) in addition to JavaScript
+  - **Configuration Validation:** Created comprehensive Zod schemas for environment variables, task configs, and automation options
+  - **Type Safety:** Enhanced type validation for all configuration inputs with detailed error messages
 - **Codebase Refactoring & Modularization:**
   - **Refactored Core Architecture:** Broke down the large `_launchAutomation.ts` file (~520 lines) into three focused, single-responsibility modules:
     - `browser-pool.ts`: Manages browser connection pooling, anti-detection scripts, and resource blocking

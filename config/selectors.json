@@ -19,5 +19,33 @@
       "//span[text()=\"Followed\"]",
       "//button//span[contains(text(), \"Following\")]"
     ]
+   },
+  "discord": {
+    "acceptInvite": [
+      "[class*=\"invite-\"] button",
+      "button[class*=\"button-\"][class*=\"lookFilled-\"]",
+      "//button[contains(text(), \"Accept Invite\")]",
+      "//button[contains(text(), \"Join Server\")]",
+      "[aria-label=\"Accept invite\"]"
+    ],
+    "joinServer": [
+      "button[class*=\"button-\"][class*=\"lookFilled-\"]",
+      "//button[contains(text(), \"Join\")]",
+      "[aria-label=\"Join server\"]"
+    ],
+    "verifyJoin": [
+      "[class*=\"channel-\"]",
+      "[class*=\"sidebar-\"]",
+      "[class*=\"chat-\"]",
+      "//div[contains(@class, \"channel\")]",
+      "//div[contains(@class, \"sidebar\")]"
+    ]
+   },
+  "gmail": {
+    "firstMail": [
+      ".zA.zE",
+      "#\\:1u",
+      "/html/body/div[6]/div[3]/div/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div/div/div[5]/div[2]/div[3]/div/table/tbody/tr[1]"
+    ]
   }
 }

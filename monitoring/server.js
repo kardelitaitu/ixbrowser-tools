@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import si from 'systeminformation'
 import { exec } from 'child_process'
 import { promisify } from 'util'
+import { DataService } from './services/dataService.js'
 
 const execAsync = promisify(exec)
 
@@ -123,88 +124,12 @@ app.use(express.static(path.join(__dirname, 'dist')))
 app.get('/api/monitoring', async (req, res) => {
   console.log('[DEV] /api/monitoring endpoint called')
   try {
-    const logsDir = path.join(__dirname, '..', 'logs')
-    console.log(`[DEV] Reading logs directory: ${logsDir}`)
-    const files = await fs.readdir(logsDir).catch(() => [])
-    console.log(`[DEV] Found ${files.length} files in logs directory`)
+    const dataService = DataService.getInstance()
+    const data = await dataService.getAllData()
 
-    const profiles = []
-    const logs = []
-
-    for (const file of files) {
-      console.log(`[DEV] Processing file: ${file}`)
-      if (file.startsWith('audit_') && file.endsWith('.jsonl')) {
-        console.log(`[DEV] Reading audit file: ${file}`)
-        const content = await fs.readFile(path.join(logsDir, file), 'utf-8').catch(() => '')
-        const lines = content.trim().split('\n')
-        console.log(`[DEV] Audit file ${file} has ${lines.length} lines`)
-        for (const line of lines) {
-          try {
-            const entry = JSON.parse(line)
-            if (entry.profileId) {
-              console.log(`[DEV] Parsed profile entry: ${entry.profileId}`)
-              profiles.push({
-                profileId: entry.profileId,
-                profileName: entry.profileName || `Profile-${entry.profileId}`,
-                status: entry.success ? 'completed' : 'failed',
-                startTime: entry.timestamp,
-                error: entry.error,
-                metrics: {}
-              })
-            }
-          } catch (e) {
-            console.log(`[DEV] Skipped invalid JSON line in ${file}`)
-          }
-        }
-      } else if (file.endsWith('.log')) {
-        console.log(`[DEV] Reading log file: ${file}`)
-        const content = await fs.readFile(path.join(logsDir, file), 'utf-8').catch(() => '')
-        const lines = content.split('\n')
-        console.log(`[DEV] Log file ${file} has ${lines.length} lines, processing last 50`)
-        for (const line of lines.slice(-50)) { // Last 50 lines
-          if (line.trim()) {
-            const match = line.match(/\[([^\]]+)\] \[([^\]]+)\] (.+)/)
-             if (match) {
-               console.log(`[DEV] Parsed log entry: ${match[2]} - ${match[3]}`)
-               const timestampStr = match[1]
-               const timeMatch = timestampStr.match(/(\w+)\s+(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+):(\d+)\.(\d+)/)
-               let timestamp = Date.now() // fallback
-               if (timeMatch) {
-                 const [, , month, day, year, hour, min, sec, ms] = timeMatch
-                 timestamp = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(min), parseInt(sec), parseInt(ms)).getTime()
-               } else {
-                 console.log(`[DEV] Failed to parse timestamp: ${timestampStr}`)
-               }
-               logs.push({
-                 timestamp,
-                 level: match[2],
-                 message: match[3]
-               })
-             }
-          }
-        }
-      }
-    }
-
-     console.log(`[DEV] Collected ${profiles.length} profiles and ${logs.length} logs`)
-
-     // Sort logs by timestamp descending (newest first)
-     logs.sort((a, b) => b.timestamp - a.timestamp)
-     console.log('[DEV] Logs sorted by timestamp')
-
-     // Use real-time metrics if available, else fallback
-     const systemMetrics = currentMetrics || {
-       timestamp: Date.now(),
-       totalMemory: 16,
-       usedMemory: 8,
-       cpuUsage: 45,
-       storageUsage: 50,
-       downloadSpeed: 10
-     }
-     console.log(`[DEV] Using system metrics: ${JSON.stringify(systemMetrics)}`)
-
-     console.log('[DEV] Sending response with monitoring data')
-     res.json({ profiles, logs, systemMetrics })
+    console.log(`[DEV] Collected ${data.profiles.length} profiles, ${Object.keys(data.taskProgress).length} task progress entries, and ${data.logs.length} logs`)
+    console.log('[DEV] Sending response with monitoring data')
+    res.json(data)
   } catch (error) {
     console.error('[DEV] Error fetching monitoring data:', error)
     res.status(500).json({ error: 'Failed to fetch data' })

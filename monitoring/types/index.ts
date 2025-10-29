@@ -11,6 +11,16 @@ export interface SystemMetrics {
   lastRestorePointTimestamp?: string
 }
 
+export interface TaskProgress {
+  taskType: string
+  currentAction: string
+  progress: number // 0-100%
+  status: "starting" | "navigating" | "verifying" | "clicking" | "reading" | "waiting" | "completed" | "failed"
+  data?: any
+  startTime?: number
+  duration?: number
+}
+
 export interface ProfileData {
   profileId: string
   profileName: string
@@ -18,6 +28,7 @@ export interface ProfileData {
   duration?: number
   startTime?: number
   error?: string
+  currentTask?: TaskProgress
 }
 
 export interface LogEntry {
@@ -29,33 +40,8 @@ export interface LogEntry {
 }
 
 export interface MonitoringData {
+  profiles: ProfileData[]
+  logs: LogEntry[]
   systemMetrics: SystemMetrics
-  profiles: ProfileData[]
-  logs: LogEntry[]
-}
-
-export interface MonitoringData {
-  systemMetrics: SystemMetrics
-  profiles: ProfileData[]
-  logs: LogEntry[]
-}
-}
-
-export interface LogEntry {
-  timestamp: string
-  level: 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS'
-  message: string
-  profileId?: string
-  data?: any
-}
-
-export interface MonitoringData {
-  profiles: ProfileData[]
-  logs: LogEntry[]
-  systemMetrics: {
-    totalMemory: number
-    usedMemory: number
-    cpuUsage: number
-    timestamp: string
-  }
+  taskProgress: { [profileId: string]: TaskProgress }
 }

@@ -161,7 +161,7 @@ function App() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-6 py-8">
           <SystemMetrics metrics={data?.systemMetrics} />
-          <ProfileDashboard profiles={filteredProfiles} />
+          <ProfileDashboard profiles={filteredProfiles} taskProgress={data?.taskProgress || {}} />
           <LogsView logs={filteredLogs} />
         </main>
       </div>
