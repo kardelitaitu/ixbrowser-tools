@@ -142,7 +142,7 @@ export class BrowserAutomation {
           if (task.stopOnFailure) {
             profileLogger.warn(`Stopping further tasks for this profile due to critical failure in task ${task.type}.`);
             allTaskResults.push(taskResult);
-            throw new TaskError(`Critical task failure: ${errorMessage}`, task.type, false, { originalError: taskError });
+            throw new TaskError(`Critical task failure: ${errorMessage}`, task.type, { originalError: taskError });
           }
         }
         allTaskResults.push(taskResult);

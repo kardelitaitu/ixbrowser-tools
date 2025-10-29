@@ -145,3 +145,46 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.7);
 }
+
+/* Auto-hiding Modern & Contrasting Scrollbar */
+.modern-scrollbar {
+  /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #06b6d4 transparent;
+}
+
+.modern-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.modern-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Track is always transparent */
+}
+
+.modern-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Thumb is transparent by default */
+  border-radius: 4px;
+}
+
+.modern-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: #06b6d4; /* Thumb appears on container hover */
+}
+
+.modern-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #22d3ee; /* Thumb gets brighter on its own hover */
+}
+
+.modern-scrollbar::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+/* Class to completely hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

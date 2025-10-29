@@ -2,17 +2,25 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "rootDir": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "downlevelIteration": true,
+    "lib": ["es2022", "dom", "es2015.iterable"],
+    "baseUrl": ".",
+    "paths": {
+      "@licensing/*": ["licensing/*"],
+      "@licensing-master/*": ["licensing-master/*"]
+    }
   },
   "include": [
-    "src/**/*"
-  ],
+    "test-licensing.ts",
+    "licensing/**/*.ts",
+    "licensing-master/**/*.ts"
+, "licensing/check-license.js"  ],
   "exclude": [
     "node_modules"
   ]

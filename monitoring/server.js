@@ -146,7 +146,7 @@ app.get('/api/monitoring', async (req, res) => {
 app.get('/api/config/tasks', async (req, res) => {
   console.log('[DEV] /api/config/tasks endpoint called')
   try {
-    const tasksPath = path.join(__dirname, '../../config/tasks.json')
+    const tasksPath = path.join(__dirname, '../config/tasks.json')
     const data = await fs.readFile(tasksPath, 'utf-8')
     res.json(JSON.parse(data))
   } catch (error) {
@@ -159,7 +159,7 @@ app.get('/api/config/tasks', async (req, res) => {
 app.get('/api/config/selectors', async (req, res) => {
   console.log('[DEV] /api/config/selectors endpoint called')
   try {
-    const selectorsPath = path.join(__dirname, '../../config/selectors.json')
+    const selectorsPath = path.join(__dirname, '../config/selectors.json')
     const data = await fs.readFile(selectorsPath, 'utf-8')
     res.json(JSON.parse(data))
   } catch (error) {
@@ -172,8 +172,16 @@ app.get('/api/config/selectors', async (req, res) => {
 app.get('*', (req, res) => {
   console.log(`[DEV] Catch-all route triggered for: ${req.originalUrl}`)
   const indexPath = path.join(__dirname, 'dist', 'index.html')
-  console.log(`[DEV] Serving index.html from: ${indexPath}`)
-  res.sendFile(indexPath)
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        res.status(404).send('Static assets not found. Did you run `npm run build`?');
+      } else {
+        console.error('[DEV] Error sending index.html:', err);
+        res.status(500).send('Internal server error');
+      }
+    }
+  });
 })
 
 const tailInstances = new Map();

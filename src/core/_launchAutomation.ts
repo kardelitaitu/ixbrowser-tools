@@ -7,6 +7,7 @@ import { ConfigService } from './config';
 import { UnifiedLogger } from '../utils/unified-logger';
 import { IxBrowserAutomationOptions, AutomationRunResult, Summary } from '../types/core';
 import { ConfigurationError } from '../utils/errors';
+import { BrowserAutomation } from './_automation';
 
 /**
  * @fileoverview Main automation class for ixBrowser profile management and execution.
@@ -23,6 +24,7 @@ class IxBrowserAutomation {
   private profileManager: ProfileManager;
   private automationRunner: AutomationRunner;
   private configService: ConfigService;
+  private browserAutomation: BrowserAutomation;
 
   constructor(
     configService: ConfigService,
@@ -44,18 +46,21 @@ class IxBrowserAutomation {
     this.timeout = options.timeout || 300000; // 5 minutes default
 
     // Initialize specialized modules
+    this.browserAutomation = new BrowserAutomation(this.auditLogger);
     this.browserPool = new BrowserPool(
       this.ixBrowserClient,
       this.auditLogger,
+      this.logger,
       {
         maxSize: options.poolMaxSize || 10,
         timeout: options.poolTimeout || 60000,
       },
     );
-    this.profileManager = new ProfileManager(this.ixBrowserClient, this.auditLogger);
+    this.profileManager = new ProfileManager(this.ixBrowserClient, this.auditLogger, this.logger);
     this.automationRunner = new AutomationRunner(
       this.browserPool,
       this.auditLogger,
+      this.browserAutomation,
       { timeout: this.timeout },
     );
   }
@@ -64,7 +69,7 @@ class IxBrowserAutomation {
    * Runs automation in parallel across all opened profiles.
    * @returns A promise that resolves with the results and summary of the parallel automation.
    */
-  async runParallelAutomation(): Promise<{results: AutomationRunResult[], summary: Summary}> {
+  async runParallelAutomation(): Promise<{results: any[], summary: Summary}> {
     this.logger.log('Starting parallel automation across all opened profiles.');
     try {
       const openedProfiles = await this.profileManager.getOpenedProfilesLazy();
@@ -88,7 +93,7 @@ class IxBrowserAutomation {
  * Main execution function.
  * @returns A promise that resolves with the results and summary of the automation.
  */
-async function main(): Promise<{results: AutomationRunResult[], summary: Summary} | void> {
+async function main(): Promise<{results: any[], summary: Summary} | void> {
   const configService = ConfigService.getInstance();
   const auditLogger = new AuditLogger({
     sessionId: `automation_${Date.now()}`,

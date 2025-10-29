@@ -6,59 +6,21 @@ interface Props {
 }
 
 const LogsView: React.FC<Props> = ({ logs }) => {
-  const levelConfig = {
-    INFO: { color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", icon: "ℹ" },
-    WARN: { color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", icon: "⚠" },
-    ERROR: { color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20", icon: "✕" },
-    SUCCESS: { color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: "✓" },
-  }
-
   return (
-    <div>
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-100">Recent Logs</h2>
-        <p className="text-sm text-slate-500 mt-1">
-          {logs.length} log{logs.length !== 1 ? "s" : ""} found
-        </p>
-      </div>
-      {logs.length === 0 ? (
-        <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg p-12 text-center">
+    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3 flex flex-col space-y-3 w-full h-full">
+      <h2 className="text-xl font-bold text-slate-100">Recent Logs</h2>
+      <div className="overflow-y-auto text-xs font-mono bg-slate-900 p-3 rounded-md flex-grow modern-scrollbar">
+        {logs.length === 0 ? (
           <p className="text-slate-400">No logs match the current filters.</p>
-        </div>
-      ) : (
-        <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg overflow-hidden">
-          <div className="max-h-96 overflow-y-auto">
-            {logs.map((log, index) => {
-              const config = levelConfig[log.level as keyof typeof levelConfig] || levelConfig.INFO
-              return (
-                <div
-                  key={index}
-                  className={`${config.bg} border-b ${config.border} px-5 py-4 flex items-start gap-4 hover:bg-slate-700/20 transition-colors ${
-                    index === logs.length - 1 ? "border-b-0" : ""
-                  }`}
-                >
-                  <div
-                    className={`flex-shrink-0 w-8 h-8 rounded-lg ${config.bg} border ${config.border} flex items-center justify-center ${config.color} font-bold text-sm`}
-                  >
-                    {config.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                     <div className="flex items-center gap-3 mb-1">
-                       <span className="text-xs text-slate-500 font-mono">
-                         {new Date(log.timestamp).toLocaleString()}
-                       </span>
-                       <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${config.color}`}>
-                         {log.level}
-                       </span>
-                     </div>
-                    <p className="text-sm text-slate-300 break-words">{log.message}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+        ) : (
+          logs.map((log, index) => (
+            <p key={index} className="text-slate-300 break-words">
+              <span className="text-slate-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+              <span className={`font-semibold ${log.level === 'ERROR' ? 'text-red-400' : log.level === 'WARN' ? 'text-yellow-400' : 'text-blue-400'}`}> [{log.level}]</span> {log.message}
+            </p>
+          ))
+        )}
+      </div>
     </div>
   )
 }
