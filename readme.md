@@ -1,27 +1,24 @@
 # 🤖 ixBrowser Playwright Automation
-
+This is more than a simple tool; it is a scalable automation architecture. The design is modular, separating the core orchestration logic from the specific browser-driver implementation. This allows for a future-proof system that can adapt to new browser technologies.
+While the initial implementation targets ixBrowser, the framework is explicitly designed to be browser-agnostic.
 <div align="center">
   <img src="https://cdn-icons-png.freepik.com/256/8999/8999462.png" alt="A friendly robot assistant" width="250"/>
 </div>
 
-<h2 align="center">🧰 A Cozy Toolkit for Browser Automation 🧰</h2>
-
-<div align="center" style="border: 1px solid #ccc; padding: 10px; border-radius: 8px; background-color: #f9f9f9;">
-  👋 <b>Welcome!</b> This project is our little workshop for automating IX Browser. We're actively tinkering and making it better every day. Grab a coffee and make yourself at home!
-</div>
-
 ## 🗺️ Part 1: The Grand Tour (Scope & Structure)
-
 ### Overview
+Welcome to the project! This is a Node.js-based automation tool, supercharged with Playwright and TypeScript, designed to control lots of ixBrowser profiles at the same time.
+Our secret sauce? We simulate human-like browser interactions (think natural mouse movements, random delays, and even realistic typing - typos included! 🤫) to perform tasks without being detected. It's built for 🕵️ stealth automation, integrates directly with the ixBrowser API, and now features an enhanced real-time monitoring dashboard with live log streaming, granular task progress, and configuration visibility, so you can watch your agents work and understand their every move.
 
-Welcome to the project! This is a Node.js-based automation tool, supercharged with **Playwright** and **TypeScript**, designed to control lots of ixBrowser profiles at the same time.
-
-Our secret sauce? We simulate **human-like browser interactions** (think natural mouse movements, random delays, and even realistic typing - typos included! 🤫) to perform tasks without being detected. It's built for 🕵️ **stealth automation**, integrates directly with the ixBrowser API, and now features an **enhanced real-time monitoring dashboard** with live log streaming, granular task progress, and configuration visibility, so you can watch your agents work and understand their every move.
+Future support is planned for:
+CDP Endpoints: Any browser (Chrome, Edge, etc.) or application that exposes a standard Chrome DevTools Protocol (CDP) WebSocket.
+Proprietary APIs: Other multi-profile browsers that provide their own REST or local APIs for profile management and automation.
+This architecture ensures that your automation workflows remain durable, portable, and independent of any single browser vendor.
 
 ### 🎯 Our Goals
 
 * 🤖 Automate those repetitive web tasks across all your accounts.
-* 🥸 Mimic human behavior to fly under the radar.
+* 😀 Mimic human behavior to fly under the radar.
 * 🧩 Provide a modular framework so you can easily add new tasks.
 * ⚡ Support running many tasks at once for maximum efficiency.
 * 📺 Offer a "mission control" dashboard to see what's happening live.
@@ -117,7 +114,7 @@ Want to watch your bots in real-time? Open a *second* terminal:
 * Run `npm start` from there.
 * This will open the dashboard in your browser!
 
-### Step 4: Become the Puppet Master 🪄
+### Step 4: Become the Puppet Master 💡
 
 This is the fun part. You get to decide what your bots do!
 
