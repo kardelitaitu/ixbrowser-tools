@@ -1,29 +1,15 @@
 import { Page } from 'playwright';
 import { findElementSmart } from '../utils/element-finder';
 import { retryWithBackoff } from '../utils/retry-utils';
-import { AuditLogger } from '../utils/audit-logger';
+import { BaseTask, AutomationInstance, TaskResult, TaskOptions } from './BaseTask';
 import { getDelayRange } from '../utils/delay-getRange';
 
 /**
- * @fileoverview Modular Gmail read task for automation.
- * Handles navigation to inbox, waiting for load, random delay, and clicking first mail.
+ * @fileoverview Modular Gmail read task using the BaseTask structure.
  */
 
-interface TaskReadGmailOptions {
+interface TaskReadGmailOptions extends TaskOptions {
   randomDelay?: boolean;
-  verifyOnly?: boolean;
-}
-
-interface AutomationInstance {
-  delay: (_profile: 'short' | 'medium' | 'long' | 'reading') => Promise<void>;
-  logger: (_msg: string) => void;
-  auditLogger: AuditLogger;
-}
-
-interface TaskResult {
-  success: boolean;
-  data?: any;
-  error?: string;
 }
 
 const DEFAULT_OPTIONS: TaskReadGmailOptions = {
@@ -31,198 +17,79 @@ const DEFAULT_OPTIONS: TaskReadGmailOptions = {
   verifyOnly: false,
 };
 
-/**
- * Performs the Gmail read task.
- * @param page - The enhanced Playwright page with human-like methods.
- * @param automation - The automation instance with delay and logger.
- * @param options - Task options.
- * @param profileId - The profile ID for audit logging.
- * @param profileName - The profile name for audit logging.
- * @param selectors - The selectors for the task.
- * @returns A promise that resolves with the task result.
- */
-async function taskReadGmail(
+class TaskReadGmail extends BaseTask<TaskReadGmailOptions, void> {
+  getTaskName(): string {
+    return 'taskReadGmail';
+  }
+
+  getTaskIdentifier(): string {
+    return 'Gmail Inbox';
+  }
+
+  async navigate(): Promise<void> {
+    const gmailUrl = 'https://mail.google.com/mail/u/0/#inbox';
+    this.logger(`Navigating to Gmail inbox: ${gmailUrl}`);
+    await this.page.goto(gmailUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await this.page.waitForSelector('table[role="grid"]', { state: 'visible', timeout: 15000 });
+  }
+
+  async verifyLogin(): Promise<void> {
+    try {
+      // More robust check for login status by looking for the account button
+      const accountButtonSelector = 'a[href*="accounts.google.com"]';
+      await this.page.waitForSelector(accountButtonSelector, { state: 'visible', timeout: 10000 });
+      const userEmail = await this.page.locator(accountButtonSelector).getAttribute('aria-label');
+      if (userEmail) {
+        this.logger(`✅ Verified login for: ${userEmail}`);
+      } else {
+        this.logger('✅ Verified login, but could not extract email.');
+      }
+    } catch (loginErr) {
+      throw new Error('Not logged into Gmail or account button not found');
+    }
+  }
+
+  async isAlreadyCompleted(): Promise<boolean> {
+    // This task is about reading, so it's never "completed" in the same way as a follow/join task.
+    return false;
+  }
+
+  async execute(): Promise<void> {
+    if (this.options.randomDelay) {
+      this.logger('Adding random delay before clicking mail');
+      await this.automation.delay('medium');
+    }
+
+    const firstMailSelectors = this.selectors.gmail.firstMail;
+    await this.findAndClick(firstMailSelectors, 'first email in inbox');
+
+    // Simulate reading the email
+    const { min, max } = getDelayRange('reading');
+    const readingDelay = Math.floor(Math.random() * (max - min) + min);
+    this.logger(`Simulating reading email for ${Math.round(readingDelay / 1000)} seconds...`);
+    await this.page.waitForTimeout(readingDelay);
+    this.logger('Finished simulating email reading.');
+  }
+
+  async verify(): Promise<TaskResult> {
+    // Verification for this task means the inbox is loaded and we are logged in.
+    // The actual reading action is transient.
+    this.logger('Verification for Gmail read is successful if navigation and login are complete.');
+    return { success: true, data: { action: 'verified_inbox_loaded' } };
+  }
+}
+
+export const type = 'gmailRead';
+
+export async function run(
   page: Page,
   automation: AutomationInstance,
+  _data: any, // Data is not used for this task, but the signature must match
   options: TaskReadGmailOptions = {},
   profileId: string | null = null,
   profileName: string | null = null,
   selectors: any,
 ): Promise<TaskResult> {
-  const {
-    randomDelay = DEFAULT_OPTIONS.randomDelay,
-    verifyOnly = DEFAULT_OPTIONS.verifyOnly,
-  } = options;
-  const gmailUrl = 'https://mail.google.com/mail/u/0/#inbox';
-  const logger = automation.logger;
-  const auditLogger = automation.auditLogger;
-
-  logger('Starting Gmail read task');
-  await auditLogger?.logStepStart(
-    'task_read_gmail',
-    'gmail_read_execution',
-    profileId,
-    profileName,
-    { randomDelay, verifyOnly },
-  );
-
-  try {
-    // Navigate to Gmail inbox
-    logger(`Navigating to Gmail inbox: ${gmailUrl}`);
-    await auditLogger?.logAction(
-      'task_read_gmail',
-      'navigate_inbox',
-      true,
-      profileId,
-      profileName,
-      { url: gmailUrl },
-    );
-    await page.goto(gmailUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-    // Wait for inbox to load - look for the table or main content
-    await page.waitForSelector('table[role="grid"]', { state: 'visible', timeout: 15000 });
-    logger('Successfully navigated to Gmail inbox and content is visible.');
-    await auditLogger?.logAction(
-      'task_read_gmail',
-      'navigate_inbox',
-      true,
-      profileId,
-      profileName,
-      { url: gmailUrl, status: 'loaded' },
-    );
-
-    // Verify login status by checking page title
-    const pageTitle = await page.title();
-    logger(`Page title: ${pageTitle}`);
-    const inboxRegex = /Inbox.*- (.+@.+\..+) - Gmail/;
-    const match = pageTitle.match(inboxRegex);
-
-    if (!match) {
-      const errorMsg = 'Not logged into Gmail or invalid page title format';
-      logger(`❌ ${errorMsg}. Title: ${pageTitle}`);
-      await auditLogger?.logAction(
-        'task_read_gmail',
-        'verify_login',
-        false,
-        profileId,
-        profileName,
-        { pageTitle, error: errorMsg },
-      );
-      throw new Error(errorMsg);
-    }
-
-    const emailAddress = match[1];
-    logger(`✅ Logged in as: ${emailAddress}`);
-    await auditLogger?.logAction(
-      'task_read_gmail',
-      'verify_login',
-      true,
-      profileId,
-      profileName,
-      { emailAddress, pageTitle },
-    );
-
-    if (randomDelay) {
-      logger('Adding random delay before clicking mail');
-      await automation.delay('medium'); // Random delay
-    }
-
-    if (verifyOnly) {
-      logger('Verification only - not clicking mail');
-      await auditLogger?.logAction(
-        'task_read_gmail',
-        'verify_only',
-        true,
-        profileId,
-        profileName,
-        { emailAddress },
-      );
-      return { success: true, data: { action: 'verified_inbox_loaded', emailAddress } };
-    }
-
-    // Find and click first mail
-    const firstMailSelectors = (selectors as any).gmail.firstMail;
-
-    logger('Attempting to find and click first mail');
-    await auditLogger?.logAction(
-      'task_read_gmail',
-      'find_first_mail',
-      true,
-      profileId,
-      profileName,
-      { selectors: firstMailSelectors },
-    );
-    const { selectorUsed } = await retryWithBackoff(
-      () => findElementSmart(page, firstMailSelectors, 10000),
-      { maxAttempts: 2, baseDelay: 1000 },
-    );
-    logger(`Found first mail using selector: ${selectorUsed}. Clicking...`);
-    await auditLogger?.logAction(
-      'task_read_gmail',
-      'click_first_mail',
-      true,
-      profileId,
-      profileName,
-      { selector: selectorUsed },
-    );
-    await (page as any).humanClick(selectorUsed);
-
-    await automation.delay('short'); // Post-click pause
-
-    // Simulate reading the email for 2-3 minutes
-    const { min, max } = getDelayRange('reading');
-    const readingDelay = Math.random() * (max - min) + min;
-    logger(`Simulating reading email for ${Math.round(readingDelay / 1000)} seconds...`);
-    await auditLogger?.logAction(
-      'task_read_gmail',
-      'simulate_reading',
-      true,
-      profileId,
-      profileName,
-      { readingDelayMs: readingDelay },
-    );
-    await page.waitForTimeout(readingDelay);
-    logger('Finished simulating email reading.');
-
-    await auditLogger?.logStepEnd(
-      'task_read_gmail',
-      'gmail_read_execution',
-      true,
-      profileId,
-      profileName,
-      {
-        action: 'read_first_mail',
-        selector: selectorUsed,
-        emailAddress,
-        readingDelayMs: readingDelay,
-      },
-    );
-    return {
-      success: true,
-      data: { action: 'read_first_mail', selector: selectorUsed, emailAddress, readingDelayMs: readingDelay },
-    };
-  } catch (error) {
-    logger(`❌ Gmail read task failed: ${(error as Error).message}`);
-    await auditLogger?.logAction(
-      'task_read_gmail',
-      'gmail_read_error',
-      false,
-      profileId,
-      profileName,
-      { error: (error as Error).message },
-    );
-
-    await auditLogger?.logStepEnd(
-      'task_read_gmail',
-      'gmail_read_execution',
-      false,
-      profileId,
-      profileName,
-      { error: (error as Error).message },
-    );
-    return { success: false, error: (error as Error).message };
-  }
+  const task = new TaskReadGmail(page, automation, { ...DEFAULT_OPTIONS, ...options }, profileId, profileName, selectors);
+  return task.run();
 }
-
-export const type = 'gmailRead';
-export const run = taskReadGmail;

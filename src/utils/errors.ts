@@ -75,3 +75,12 @@ export class VerificationError extends AutomationError {
     super(message, 'verification_error', false, { ...metadata, verificationType });
   }
 }
+
+/**
+ * Error for configuration-related failures (e.g., invalid config file, missing env var)
+ */
+export class ConfigurationError extends AutomationError {
+  constructor(message: string, metadata = {}) {
+    super(message, 'configuration_error', false, { ...metadata });
+  }
+}

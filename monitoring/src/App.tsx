@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { io, type Socket } from "socket.io-client"
-import type { MonitoringData, ProfileData, LogEntry } from "../types"
+import type { MonitoringData, ProfileData, LogEntry, TaskConfiguration, Selectors, TaskProgress } from "../types"
 import ProfileDashboard from "./components/ProfileDashboard"
 import LogsView from "./components/LogsView"
 import SystemMetrics from "./components/SystemMetrics"
 import ErrorBoundary from "./components/ErrorBoundary"
+import ConfigurationView from "./components/ConfigurationView"
 
 function App() {
   const [data, setData] = useState<MonitoringData | null>(null)
@@ -19,10 +20,25 @@ function App() {
   const fetchData = useCallback(async () => {
     try {
       setError(null)
-      const response = await fetch("/api/monitoring")
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-      const result: MonitoringData = await response.json()
-      setData(result)
+      const [monitoringResponse, tasksResponse, selectorsResponse] = await Promise.all([
+        fetch("/api/monitoring"),
+        fetch("/api/config/tasks"),
+        fetch("/api/config/selectors"),
+      ]);
+
+      if (!monitoringResponse.ok) throw new Error(`HTTP error! status: ${monitoringResponse.status} for monitoring data`);
+      if (!tasksResponse.ok) throw new Error(`HTTP error! status: ${tasksResponse.status} for tasks config`);
+      if (!selectorsResponse.ok) throw new Error(`HTTP error! status: ${selectorsResponse.status} for selectors config`);
+
+      const monitoringResult: MonitoringData = await monitoringResponse.json();
+      const tasksConfig: TaskConfiguration[] = await tasksResponse.json();
+      const selectorsConfig: Selectors = await selectorsResponse.json();
+
+      setData({
+        ...monitoringResult,
+        tasksConfig,
+        selectorsConfig,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error"
       setError(errorMessage)
@@ -37,14 +53,44 @@ function App() {
     setSocket(newSocket)
 
     newSocket.on("monitoring-data", (data) => {
-      console.log("[App] Received real-time data:", data)
-      setData((prev) => ({ ...prev, ...data }))
+      console.log("[App] Received initial monitoring data:", data)
+      setData((prev) => prev ? { ...prev, ...data } : null)
     })
 
     newSocket.on("system-metrics", (metrics) => {
       console.log("[App] Received real-time system metrics:", metrics)
       setData((prev) => prev ? { ...prev, systemMetrics: metrics } : null)
     })
+
+    newSocket.on("general-log-entry", (logEntry: LogEntry) => {
+      console.log("[App] Received general log entry:", logEntry)
+      setData((prev) => {
+        if (!prev) return null;
+        return { ...prev, logs: [...prev.logs, logEntry] };
+      });
+    });
+
+    newSocket.on("audit-log-entry", (auditEntry: any) => {
+      console.log("[App] Received audit log entry:", auditEntry)
+      setData((prev) => {
+        if (!prev) return null;
+        return { ...prev, logs: [...prev.logs, auditEntry] }; // Assuming audit entries can also be displayed as logs
+      });
+    });
+
+    newSocket.on("task-progress-update", ({ profileId, progress }: { profileId: string, progress: TaskProgress }) => {
+      console.log("[App] Received task progress update:", { profileId, progress })
+      setData((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          taskProgress: {
+            ...prev.taskProgress,
+            [profileId]: progress,
+          },
+        };
+      });
+    });
 
     return () => {
       newSocket.close()
@@ -53,8 +99,9 @@ function App() {
 
    useEffect(() => {
      fetchData()
-     const interval = setInterval(fetchData, 5000)
-     return () => clearInterval(interval)
+     // No longer polling for logs, only for initial data
+     // const interval = setInterval(fetchData, 5000)
+     // return () => clearInterval(interval)
    }, [fetchData])
 
   const filteredLogs = useMemo(() => {
@@ -163,6 +210,7 @@ function App() {
           <SystemMetrics metrics={data?.systemMetrics} />
           <ProfileDashboard profiles={filteredProfiles} taskProgress={data?.taskProgress || {}} />
           <LogsView logs={filteredLogs} />
+          <ConfigurationView tasksConfig={data?.tasksConfig} selectorsConfig={data?.selectorsConfig} />
         </main>
       </div>
     </ErrorBoundary>

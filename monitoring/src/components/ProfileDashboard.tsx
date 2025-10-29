@@ -19,6 +19,17 @@ const ProfileDashboard: React.FC<Props> = ({ profiles, taskProgress }) => {
     idle: { color: "from-slate-500 to-slate-600", bg: "bg-slate-500/10", border: "border-slate-500/30", icon: "○" },
   }
 
+  const getTaskStatusColor = (status: TaskProgress['status']) => {
+    switch (status) {
+      case 'completed': return 'text-emerald-400';
+      case 'failed': return 'text-red-400';
+      case 'in_progress': return 'text-blue-400';
+      case 'started': return 'text-cyan-400';
+      case 'skipped': return 'text-yellow-400';
+      default: return 'text-slate-400';
+    }
+  };
+
   return (
     <div className="mb-8">
       <div className="mb-6">
@@ -35,6 +46,7 @@ const ProfileDashboard: React.FC<Props> = ({ profiles, taskProgress }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {profiles.map((profile) => {
             const config = statusConfig[profile.status as keyof typeof statusConfig] || statusConfig.idle
+            const currentTask = taskProgress[profile.profileId];
             return (
               <div
                 key={profile.profileId}
@@ -64,37 +76,32 @@ const ProfileDashboard: React.FC<Props> = ({ profiles, taskProgress }) => {
                     </span>
                   </div>
 
-                  {taskProgress[profile.profileId] && (
+                  {currentTask && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-slate-400">Current Task</span>
                         <span className="text-xs text-slate-300 capitalize">
-                          {taskProgress[profile.profileId].taskType.replace('task_', '').replace('_', ' ')}
+                          {currentTask.taskType.replace('task_', '').replace('_', ' ')}
                         </span>
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-500 capitalize">
-                            {taskProgress[profile.profileId].currentAction.replace('_', ' ')}
+                            {currentTask.step.replace('_', ' ')}
                           </span>
-                          <span className="text-xs text-slate-400">
-                            {taskProgress[profile.profileId].progress}%
+                          <span className={`text-xs font-semibold ${getTaskStatusColor(currentTask.status)}`}>
+                            {currentTask.status.toUpperCase()}
                           </span>
                         </div>
-                        <div className="w-full bg-slate-700/50 rounded-full h-1.5">
-                          <div
-                            className="bg-gradient-to-r from-blue-500 to-cyan-500 h-1.5 rounded-full transition-all duration-300"
-                            style={{ width: `${taskProgress[profile.profileId].progress}%` }}
-                          ></div>
-                        </div>
+                        <p className="text-xs text-slate-400 mt-1">{currentTask.message}</p>
                       </div>
 
-                      {taskProgress[profile.profileId].data?.emailAddress && (
+                      {currentTask.data?.emailAddress && (
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-slate-500">Email</span>
                           <span className="text-xs text-slate-400 truncate max-w-32">
-                            {taskProgress[profile.profileId].data.emailAddress}
+                            {currentTask.data.emailAddress}
                           </span>
                         </div>
                       )}

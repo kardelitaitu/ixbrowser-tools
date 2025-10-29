@@ -1,5 +1,26 @@
 # Patch Notes
 
+## Version 1.1.6 (2025-10-29)
+- **Core Architecture Refinement:**
+  - **Centralized Configuration:** Introduced `ConfigService` (`src/core/config.ts`) for unified loading and validation of `tasks.json`, `selectors.json`, and environment variables.
+  - **Consistent Logging:** Implemented `UnifiedLogger` (`src/utils/unified-logger.ts`) for standardized logging across core modules, integrating with `AuditLogger` and replacing direct `console.log` calls.
+  - **Comprehensive Type Definitions:** Created `src/types/core.ts` to define robust interfaces for profiles, task configurations, selectors, and automation results, enhancing type safety.
+  - **Refined Error Handling:** Enhanced `src/utils/errors.ts` with `ConfigurationError` and ensured consistent use of custom error classes throughout core modules.
+  - **Modular Core:** Refactored `_automation.ts`, `_launchAutomation.ts`, `automation-runner.ts`, `browser-pool.ts`, and `profile-manager.ts` to leverage the new architecture, improving modularity, testability, and maintainability.
+- **Enhanced Monitoring Tool:**
+  - **Granular Task Progress:**
+    - `BaseTask.ts` now emits detailed `task_progress` events via `auditLogger`.
+    - `monitoring/types/index.ts` and `monitoring/services/dataService.ts` updated to consume and process these granular progress events.
+    - `monitoring/src/components/ProfileDashboard.tsx` updated to display detailed task `step`, `message`, and `status`.
+  - **Configuration Visibility:**
+    - Added API endpoints (`/api/config/tasks`, `/api/config/selectors`) to `monitoring/server.js` to expose configuration files.
+    - `monitoring/types/index.ts` updated with `TaskConfiguration` and `Selectors` interfaces.
+    - Created `monitoring/src/components/ConfigurationView.tsx` to display configurations.
+    - Integrated `ConfigurationView` into `monitoring/src/App.tsx`.
+  - **Real-time Log Streaming:**
+    - Implemented `chokidar` and `tail` in `monitoring/server.js` for real-time log file watching and `socket.io` emission of new log entries and task progress updates.
+    - `monitoring/src/App.tsx` updated to listen for and display these real-time log and progress events, replacing log polling.
+
 ## Version 1.1.5 (2025-10-29)
 - **Code Quality Improvements:**
   - **ESLint Fixes:** Resolved all ESLint errors (18 errors fixed) and reduced warnings from 95 to 70 by replacing unsafe `any` types with `unknown` where appropriate, defining proper interfaces like `ApiResponse` for API responses, and prefixing unused parameters with `_` for better type safety.

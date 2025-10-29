@@ -141,113 +141,47 @@ export class DataService {
   }
 
   async getTaskProgress(): Promise<{ [profileId: string]: TaskProgress }> {
-    // Parse audit logs for current task progress
     try {
       const fs = await import('fs').then(m => m.promises)
       const files = await fs.readdir(LOGS_DIR)
       const auditFiles = files.filter(f => f.startsWith('audit_') && f.endsWith('.jsonl'))
 
       const taskProgress: { [profileId: string]: TaskProgress } = {}
+      const latestProgressTimestamps: { [profileId: string]: number } = {};
 
       for (const file of auditFiles) {
         const content = await fs.readFile(`${LOGS_DIR}/${file}`, 'utf-8')
         const lines = content.trim().split('\n')
 
-        // Process lines in reverse order to get latest progress
-        for (let i = lines.length - 1; i >= 0; i--) {
+        for (const line of lines) {
           try {
-            const entry = JSON.parse(lines[i])
-            if (entry.profileId && entry.step && entry.step !== 'profile') {
-              const profileId = entry.profileId
+            const entry = JSON.parse(line)
+            if (entry.profileId && entry.action === 'task_progress' && entry.data) {
+              const profileId = entry.profileId;
+              const progressEvent: TaskProgress = entry.data as TaskProgress;
+              const eventTimestamp = new Date(progressEvent.timestamp).getTime();
 
-              if (!taskProgress[profileId]) {
+              // Only store the latest progress event for each profile
+              if (!latestProgressTimestamps[profileId] || eventTimestamp > latestProgressTimestamps[profileId]) {
                 taskProgress[profileId] = {
-                  taskType: entry.step,
-                  currentAction: entry.action.replace('_start', '').replace('_end', ''),
-                  progress: this.calculateProgress(entry.step, entry.action),
-                  status: this.mapActionToStatus(entry.step, entry.action),
-                  data: entry.data || {},
-                  startTime: new Date(entry.timestamp).getTime(),
-                }
-
-                // If this is an end action, mark as completed
-                if (entry.action.endsWith('_end')) {
-                  taskProgress[profileId].status = entry.success ? 'completed' : 'failed'
-                  if (entry.duration) {
-                    taskProgress[profileId].duration = entry.duration
-                  }
-                }
+                  ...progressEvent,
+                  taskType: entry.step, // Use entry.step as taskType as it is the taskName
+                };
+                latestProgressTimestamps[profileId] = eventTimestamp;
               }
             }
           } catch (e) {
-            // Skip invalid lines
+            // Skip invalid lines or lines without expected progress data
+            console.warn(`Skipping malformed or unexpected audit log line: ${line} Error: ${(e as Error).message}`);
           }
         }
       }
-
       return taskProgress
     } catch (error) {
       console.error('Error reading task progress:', error)
       return {}
     }
   }
-
-  private calculateProgress(step: string, action: string): number {
-    const progressMap: { [key: string]: { [key: string]: number } } = {
-      'task_read_gmail': {
-        'gmail_read_execution_start': 0,
-        'navigate_inbox': 10,
-        'verify_login': 20,
-        'find_first_mail': 40,
-        'click_first_mail': 60,
-        'simulate_reading': 80,
-        'gmail_read_execution_end': 100,
-      },
-      'task_follow': {
-        'follow_execution_start': 0,
-        'navigate_profile': 10,
-        'scroll_reveal': 20,
-        'like_first_tweet': 40,
-        'find_follow_button': 60,
-        'click_follow_button': 80,
-        'follow_execution_end': 100,
-      },
-      'task_join_discord': {
-        'discord_join_start': 0,
-        'navigate_invite': 25,
-        'accept_invite': 50,
-        'join_server': 75,
-        'verify_join': 100,
-      }
-    }
-
-    return progressMap[step]?.[action] || 0
-  }
-
-  private mapActionToStatus(step: string, action: string): TaskProgress['status'] {
-    const statusMap: { [key: string]: TaskProgress['status'] } = {
-      'gmail_read_execution_start': 'starting',
-      'navigate_inbox': 'navigating',
-      'verify_login': 'verifying',
-      'find_first_mail': 'clicking',
-      'click_first_mail': 'clicking',
-      'simulate_reading': 'reading',
-      'follow_execution_start': 'starting',
-      'navigate_profile': 'navigating',
-      'scroll_reveal': 'waiting',
-      'like_first_tweet': 'clicking',
-      'find_follow_button': 'clicking',
-      'click_follow_button': 'clicking',
-      'discord_join_start': 'starting',
-      'navigate_invite': 'navigating',
-      'accept_invite': 'clicking',
-      'join_server': 'clicking',
-      'verify_join': 'verifying',
-    }
-
-    return statusMap[action] || 'waiting'
-  }
-
   async getAllData(): Promise<MonitoringData> {
     const [profiles, logs, systemMetrics, taskProgress] = await Promise.all([
       this.getProfilesData(),

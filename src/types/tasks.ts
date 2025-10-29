@@ -1,13 +1,32 @@
-import { Page } from 'playwright';
-import { IxbrowserProfile } from './ixbrowser';
+import { AuditLogger } from '../utils/audit-logger';
+
+/**
+ * @fileoverview Centralized type definitions for automation tasks.
+ */
+
+export interface TaskOptions {
+  verifyOnly?: boolean;
+  delayBetweenActions?: boolean;
+}
+
+export interface AutomationInstance {
+  delay: (profile: 'short' | 'medium' | 'long' | 'reading') => Promise<void>;
+  logger: (msg: string) => void;
+  auditLogger: AuditLogger;
+}
 
 export interface TaskResult {
   success: boolean;
-  message: string;
+  data?: any;
   error?: string;
-  data?: unknown;
 }
 
-export interface IAutomationTask {
-  execute(_page: Page, _profile: IxbrowserProfile): Promise<TaskResult>;
+export type TaskProgressStatus = 'started' | 'in_progress' | 'completed' | 'failed' | 'skipped';
+
+export interface TaskProgress {
+  status: TaskProgressStatus;
+  step: string;
+  message: string;
+  timestamp: string;
+  data?: any;
 }

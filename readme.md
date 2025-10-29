@@ -16,7 +16,7 @@
 
 Welcome to the project! This is a Node.js-based automation tool, supercharged with **Playwright** and **TypeScript**, designed to control lots of ixBrowser profiles at the same time.
 
-Our secret sauce? We simulate **human-like browser interactions** (think natural mouse movements, random delays, and even realistic typing - typos included! 🤫) to perform tasks without being detected. It's built for 🕵️ **stealth automation**, integrates directly with the ixBrowser API, and even has its own **real-time monitoring dashboard** so you can watch your agents work.
+Our secret sauce? We simulate **human-like browser interactions** (think natural mouse movements, random delays, and even realistic typing - typos included! 🤫) to perform tasks without being detected. It's built for 🕵️ **stealth automation**, integrates directly with the ixBrowser API, and now features an **enhanced real-time monitoring dashboard** with live log streaming, granular task progress, and configuration visibility, so you can watch your agents work and understand their every move.
 
 ### 🎯 Our Goals
 
@@ -31,9 +31,9 @@ Our secret sauce? We simulate **human-like browser interactions** (think natural
 * **Parallel Execution**: Run tasks on tons of profiles simultaneously.
 * **Human Simulation**: We're talking advanced mouse movements, variable delays, natural typing, and scrolling. It's basically a little "ghost in the machine."
 * **Anti-Detection**: We automatically clear out "webdriver" traces and make the browser look normal.
-* **Modular Tasks**: All tasks are neatly defined in `config/tasks.json`. Want to add a new task? Just create a new file, and you're good to go!
+* **Modular Tasks**: All tasks are neatly defined in `config/tasks.json`, and selectors in `config/selectors.json`. Want to add a new task? Just create a new file, extending `BaseTask`, and you're good to go!
 * **Smart Error Handling**: We have custom error types and retry logic to keep things running smoothly.
-* **Live Dashboard**: A separate React/TypeScript app to watch your logs and system metrics in real-time.
+* **Live Dashboard**: A separate React/TypeScript app to watch your logs, system metrics, granular task progress, and configuration in real-time, with live streaming updates.
 * **Resource-Friendly**: We're smart about reusing browser instances to save your PC's memory.
 
 ### 🌳 Project Structure
@@ -41,23 +41,37 @@ Our secret sauce? We simulate **human-like browser interactions** (think natural
 Here's a map of the workshop:
 ```
 ixbrowser-playwright/
-├── src/
-│   ├── core/                    # Main orchestration scripts
-│   │   ├── _launchAutomation.ts # Entry point: manages profiles, API, execution
-│   │   └── _automation.ts       # Workflow engine: defines tasks per profile
-│   ├── utils/                   # Reusable helper functions
-│   │   ├── humanSimulation.ts   # Mouse/keyboard simulation
+├── src/                    # Source code for the automation suite
+│   ├── core/                # Core orchestration and configuration modules
+│   │   ├── _launchAutomation.ts # Main entry point; orchestrates parallel runs
+│   │   ├── _automation.ts       # Per-profile workflow execution engine
+│   │   ├── config.ts            # Centralized configuration service
+│   │   ├── browser-pool.ts      # Manages pooled browser connections
+│   │   ├── profile-manager.ts   # Handles ixBrowser profile management
+│   │   └── automation-runner.ts # Orchestrates individual profile automation
+│   ├── utils/               # Reusable helper functions and utilities
+│   │   ├── humanSimulation.ts   # Human-like interaction utilities
 │   │   ├── element-finder.ts    # Smart element detection
-│   │   └── ...                  # Other utilities
-│   └── tasks/                   # Specific automation tasks
-│       └── taskFollowTwitter.ts # Example: Twitter follow logic
-├── config/
-│   └── tasks.json               # Externalized task configuration
-├── monitoring/                  # Real-time monitoring dashboard
-├── logs/                        # Runtime logs and outputs
-├── __launchAutomation.bat       # Windows quick launcher
-├── package.json                 # Dependencies and npm scripts
-└── readme.md                    # This file
+│   │   ├── unified-logger.ts    # Consistent logging interface
+│   │   ├── errors.ts            # Custom error classes
+│   │   └── ...                  # Other utilities (delay, page enhancement, retry)
+│   ├── tasks/               # Specific automation tasks and base class
+│   │   ├── BaseTask.ts          # Abstract base class for all tasks
+│   │   ├── taskFollowTwitter.ts # Example: Twitter follow logic
+│   │   ├── taskJoinDiscord.ts   # Example: Discord join logic
+│   │   └── taskReadGmail.ts     # Example: Gmail read logic
+│   └── types/               # Centralized TypeScript type definitions
+│       ├── core.ts              # Types for core modules
+│       └── tasks.ts             # Types for automation tasks
+├── config/                  # Application configuration files
+│   ├── tasks.json               # Externalized task configuration
+│   └── selectors.json           # Externalized element selectors
+├── monitoring/              # Real-time monitoring dashboard (React/Node.js)
+├── logs/                    # Runtime logs and outputs (audit_*.jsonl, *.log)
+├── __launchAutomation.bat   # Windows quick launcher script
+├── package.json             # Dependencies and npm scripts
+├── tsconfig.json            # TypeScript configuration
+└── readme.md                # This file
 ```
 ## 🚀 Part 2: Let's Get You Started! (Tutorial)
 
@@ -83,11 +97,17 @@ ixbrowser-playwright/
 
 ### Step 2: Start the Engines! 🤖
 
-Ready to run? Just use this command from the main project folder:
+Ready to run? You'll need two terminals for the full experience:
 
+**Terminal 1: Start the Automation**
+From the main project folder:
 * `npm start`
-
 Or, if you're on Windows, just double-click `__launchAutomation.bat`!
+
+**Terminal 2: Open the Dashboard**
+Navigate into the `monitoring/` folder:
+* `npm start`
+This will open the dashboard in your browser (usually at `http://localhost:3000` or `http://localhost:3001`)!
 
 ### Step 3: Open the Dashboard 📊
 
@@ -101,7 +121,7 @@ Want to watch your bots in real-time? Open a *second* terminal:
 
 This is the fun part. You get to decide what your bots do!
 
-* **Define Tasks**: Open up `config/tasks.json`. This is your mission control.
+* **Define Tasks**: Open up `config/tasks.json`. This is your mission control. You can also inspect `config/selectors.json` for the element selectors used by tasks.
 * **Example `config/tasks.json`**:
     ```json
     [
@@ -117,8 +137,9 @@ This is the fun part. You get to decide what your bots do!
     ```
 * **Add New Task Types**:
     1.  Create a new file in `src/tasks/` (e.g., `taskDoSomethingCool.ts`).
-    2.  Inside, just export a `type` (string) and a `run` (async function).
-    3.  That's it! The system automatically finds and registers it.
+    2.  Inside, extend the `BaseTask` class and implement its abstract methods.
+    3.  Export the `type` (string) and a `run` (async function) that acts as a factory for your new task.
+    4.  That's it! The system automatically finds and registers it.
 
 ### Step 5: Pro-Tips for Happy Coding 🧠
 

@@ -9,11 +9,17 @@ import si from 'systeminformation'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { DataService } from './services/dataService.js'
+import chokidar from 'chokidar'
+import { Tail } from 'tail'
 
 const execAsync = promisify(exec)
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+const LOGS_DIR = path.join(__dirname, '../logs')
+const AUDIT_LOG_PATTERN = path.join(LOGS_DIR, 'audit_*.jsonl')
+const GENERAL_LOG_PATTERN = path.join(LOGS_DIR, '*.log')
 
 console.log('[DEV] Initializing monitoring server...')
 
@@ -136,6 +142,32 @@ app.get('/api/monitoring', async (req, res) => {
   }
 })
 
+// API endpoint for tasks configuration
+app.get('/api/config/tasks', async (req, res) => {
+  console.log('[DEV] /api/config/tasks endpoint called')
+  try {
+    const tasksPath = path.join(__dirname, '../../config/tasks.json')
+    const data = await fs.readFile(tasksPath, 'utf-8')
+    res.json(JSON.parse(data))
+  } catch (error) {
+    console.error('[DEV] Error fetching tasks config:', error)
+    res.status(500).json({ error: 'Failed to fetch tasks configuration' })
+  }
+})
+
+// API endpoint for selectors configuration
+app.get('/api/config/selectors', async (req, res) => {
+  console.log('[DEV] /api/config/selectors endpoint called')
+  try {
+    const selectorsPath = path.join(__dirname, '../../config/selectors.json')
+    const data = await fs.readFile(selectorsPath, 'utf-8')
+    res.json(JSON.parse(data))
+  } catch (error) {
+    console.error('[DEV] Error fetching selectors config:', error)
+    res.status(500).json({ error: 'Failed to fetch selectors configuration' })
+  }
+})
+
 // Catch-all handler: send back React's index.html for client-side routing
 app.get('*', (req, res) => {
   console.log(`[DEV] Catch-all route triggered for: ${req.originalUrl}`)
@@ -143,6 +175,77 @@ app.get('*', (req, res) => {
   console.log(`[DEV] Serving index.html from: ${indexPath}`)
   res.sendFile(indexPath)
 })
+
+const tailInstances = new Map();
+
+const watchLogs = () => {
+  console.log('[DEV] Starting log file watcher...');
+  const watcher = chokidar.watch([AUDIT_LOG_PATTERN, GENERAL_LOG_PATTERN], {
+    cwd: LOGS_DIR,
+    ignoreInitial: false, // Process existing files
+    persistent: true,
+    usePolling: true, // Use polling for network drives or VMs
+    interval: 1000, // Check for changes every 1 second
+  });
+
+  watcher.on('add', (filePath) => {
+    console.log(`[DEV] Log file added: ${filePath}`);
+    const fullPath = path.join(LOGS_DIR, filePath);
+    const tail = new Tail(fullPath, {
+      follow: true,
+      fromBeginning: false, // Only new lines after starting tail
+      fsWatchOptions: { interval: 1000 },
+    });
+
+    tail.on('line', (line) => {
+      try {
+        if (filePath.startsWith('audit_') && filePath.endsWith('.jsonl')) {
+          const entry = JSON.parse(line);
+          if (entry.action === 'task_progress') {
+            io.emit('task-progress-update', { profileId: entry.profileId, progress: entry.data });
+          } else {
+            io.emit('audit-log-entry', entry);
+          }
+        } else if (filePath.endsWith('.log')) {
+          const match = line.match(/\[([^\]]+)\] \[([^\]]+)\] (.+)/);
+          if (match) {
+            io.emit('general-log-entry', {
+              timestamp: match[1],
+              level: match[2],
+              message: match[3],
+            });
+          }
+        }
+      } catch (e) {
+        console.error(`[DEV] Error parsing log line from ${filePath}: ${line}`, e);
+      }
+    });
+
+    tail.on('error', (err) => {
+      console.error(`[DEV] Tail error for ${filePath}:`, err);
+    });
+
+    tailInstances.set(filePath, tail);
+  });
+
+  watcher.on('unlink', (filePath) => {
+    console.log(`[DEV] Log file removed: ${filePath}`);
+    const tail = tailInstances.get(filePath);
+    if (tail) {
+      tail.unwatch();
+      tailInstances.delete(filePath);
+    }
+  });
+
+  // Stop all tail instances when the server shuts down
+  process.on('exit', () => {
+    console.log('[DEV] Stopping all log watchers...');
+    watcher.close();
+    for (const tail of tailInstances.values()) {
+      tail.unwatch();
+    }
+  });
+};
 
 // Socket.io for real-time updates
 io.on('connection', (socket) => {
@@ -155,6 +258,9 @@ io.on('connection', (socket) => {
     console.log(`[DEV] Socket.IO client disconnected: ${socket.id}`)
   })
 })
+
+// Start watching logs after Socket.IO is ready
+watchLogs();
 
 // Emit real-time metrics every 5 seconds
 setInterval(() => {

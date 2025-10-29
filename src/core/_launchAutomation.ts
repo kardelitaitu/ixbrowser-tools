@@ -1,54 +1,47 @@
-import 'dotenv/config';
-import * as fs from 'fs/promises';
-import * as path from 'path';
 import { AuditLogger } from '../utils/audit-logger';
 import { IxBrowserClient } from '../utils/ixBrowserClient';
 import { BrowserPool } from './browser-pool';
 import { ProfileManager } from './profile-manager';
 import { AutomationRunner } from './automation-runner';
+import { ConfigService } from './config';
+import { UnifiedLogger } from '../utils/unified-logger';
+import { IxBrowserAutomationOptions, AutomationRunResult, Summary } from '../types/core';
+import { ConfigurationError } from '../utils/errors';
 
 /**
  * @fileoverview Main automation class for ixBrowser profile management and execution.
  */
 
-interface IxBrowserAutomationOptions {
-  baseUrl?: string;
-  apiKey?: string;
-  logFile?: string;
-  timeout?: number;
-  poolMaxSize?: number;
-  poolTimeout?: number;
-}
-
 class IxBrowserAutomation {
   private baseUrl: string;
   private apiKey: string;
   private ixBrowserClient: IxBrowserClient;
-  private logFile: string;
   private timeout: number;
   public auditLogger: AuditLogger;
+  public logger: UnifiedLogger;
   private browserPool: BrowserPool;
   private profileManager: ProfileManager;
   private automationRunner: AutomationRunner;
+  private configService: ConfigService;
 
-  constructor(options: IxBrowserAutomationOptions = {}) {
-    this.baseUrl = process.env.BASE_URL || options.baseUrl;
-    this.apiKey = process.env.IXBROWSER_API_KEY || options.apiKey;
+  constructor(
+    configService: ConfigService,
+    auditLogger: AuditLogger,
+    options: IxBrowserAutomationOptions = {},
+  ) {
+    this.configService = configService;
+    this.auditLogger = auditLogger;
+    this.logger = new UnifiedLogger(auditLogger, 'IxBrowserAutomation');
+
+    this.baseUrl = this.configService.getBaseUrl();
+    this.apiKey = this.configService.getApiKey();
 
     if (!this.baseUrl || !this.apiKey) {
-      throw new Error('BASE_URL and IXBROWSER_API_KEY must be defined in your .env file');
+      throw new ConfigurationError('BASE_URL and IXBROWSER_API_KEY must be defined in your .env file or provided in options');
     }
 
     this.ixBrowserClient = new IxBrowserClient(this.baseUrl, this.apiKey);
-    this.logFile = path.join(
-      __dirname,
-      'logs',
-      `_launchAutomation_${new Date().toISOString().replace(/:/g, '-')}.log`,
-    );
     this.timeout = options.timeout || 300000; // 5 minutes default
-    this.auditLogger = new AuditLogger({
-      sessionId: `automation_${Date.now()}`,
-    });
 
     // Initialize specialized modules
     this.browserPool = new BrowserPool(
@@ -68,33 +61,16 @@ class IxBrowserAutomation {
   }
 
   /**
-   * Logs a message to console and file.
-   * @param message - The message to log.
-   * @param level - The log level (INFO, ERROR, WARN).
-   */
-  async log(message: string, level = 'INFO'): Promise<void> {
-    const logMessage = `[${new Date().toISOString()}] [${level}] ${message}`;
-    console.log(logMessage);
-
-    try {
-      await fs.mkdir(path.dirname(this.logFile), { recursive: true });
-      await fs.appendFile(this.logFile, logMessage + '\n');
-    } catch (error) {
-      console.error('Logging failed:', error);
-    }
-  }
-
-  /**
    * Runs automation in parallel across all opened profiles.
    * @returns A promise that resolves with the results and summary of the parallel automation.
    */
-  async runParallelAutomation(): Promise<{results: any[], summary: any}> {
-    await this.log('Starting parallel automation across all opened profiles.', 'INFO');
+  async runParallelAutomation(): Promise<{results: AutomationRunResult[], summary: Summary}> {
+    this.logger.log('Starting parallel automation across all opened profiles.');
     try {
       const openedProfiles = await this.profileManager.getOpenedProfilesLazy();
       return await this.automationRunner.runParallelAutomation(openedProfiles);
     } catch (error) {
-      await this.log(`Parallel automation failed: ${(error as Error).message}`, 'ERROR');
+      this.logger.error(`Parallel automation failed: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -103,6 +79,7 @@ class IxBrowserAutomation {
    * Cleans up resources and closes all browser connections.
    */
   async cleanup(): Promise<void> {
+    this.logger.log('Cleaning up browser pool resources.');
     await this.browserPool.closeAll();
   }
 }
@@ -111,19 +88,27 @@ class IxBrowserAutomation {
  * Main execution function.
  * @returns A promise that resolves with the results and summary of the automation.
  */
-async function main(): Promise<{results: any[], summary: any}> {
-  const automation = new IxBrowserAutomation();
+async function main(): Promise<{results: AutomationRunResult[], summary: Summary} | void> {
+  const configService = ConfigService.getInstance();
+  const auditLogger = new AuditLogger({
+    sessionId: `automation_${Date.now()}`,
+  });
+  const mainLogger = new UnifiedLogger(auditLogger, 'Main');
+
+  let automation: IxBrowserAutomation | undefined;
 
   try {
-    await automation.auditLogger.logStepStart('session', 'main_execution');
-    await automation.log('=== AUTOMATION SESSION STARTED ===');
+    await auditLogger.logStepStart('session', 'main_execution');
+    mainLogger.log('=== AUTOMATION SESSION STARTED ===');
+
+    automation = new IxBrowserAutomation(configService, auditLogger);
     const { results, summary } = await automation.runParallelAutomation();
 
-    await automation.log(
+    mainLogger.log(
       `Automation completed. Success rate: ${summary.successRate}%`,
     );
-    await automation.log('=== AUTOMATION SESSION COMPLETED ===');
-    await automation.auditLogger.logStepEnd(
+    mainLogger.log('=== AUTOMATION SESSION COMPLETED ===');
+    await auditLogger.logStepEnd(
       'session',
       'main_execution',
       true,
@@ -134,26 +119,35 @@ async function main(): Promise<{results: any[], summary: any}> {
 
     return { results, summary };
   } catch (error) {
-    await automation.log(`Execution failed: ${(error as Error).message}`, 'ERROR');
-    await automation.auditLogger.logStepEnd(
+    const errorMessage = (error instanceof Error) ? error.message : 'Unknown error during main execution';
+    mainLogger.error(`Execution failed: ${errorMessage}`);
+    await auditLogger.logStepEnd(
       'session',
       'main_execution',
       false,
       null,
       null,
-      {},
-      (error as Error).message,
+      {}, // No specific data to log for this error
+      errorMessage,
     );
-    await automation.cleanup();
-    process.exit(1);
+    if (automation) {
+      await automation.cleanup();
+    }
+    // Re-throw the error to indicate failure to the process runner
+    throw error;
   } finally {
-    await automation.cleanup();
+    if (automation) {
+      await automation.cleanup();
+    }
   }
 }
 
 // Run script or export for module use
 if (require.main === module) {
-  main().catch(console.error);
+  main().catch((error) => {
+    console.error('Unhandled automation error:', error);
+    process.exit(1);
+  });
 }
 
 export default IxBrowserAutomation;

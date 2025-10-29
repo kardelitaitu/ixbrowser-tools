@@ -1,3 +1,5 @@
+import { TaskConfiguration, Selectors } from '../../src/types/core';
+
 export interface SystemMetrics {
   timestamp: number
   totalMemory: number
@@ -11,14 +13,15 @@ export interface SystemMetrics {
   lastRestorePointTimestamp?: string
 }
 
+export type TaskProgressStatus = 'started' | 'in_progress' | 'completed' | 'failed' | 'skipped';
+
 export interface TaskProgress {
-  taskType: string
-  currentAction: string
-  progress: number // 0-100%
-  status: "starting" | "navigating" | "verifying" | "clicking" | "reading" | "waiting" | "completed" | "failed"
-  data?: any
-  startTime?: number
-  duration?: number
+  taskType: string;
+  status: TaskProgressStatus;
+  step: string;
+  message: string;
+  timestamp: string;
+  data?: any;
 }
 
 export interface ProfileData {
@@ -28,7 +31,7 @@ export interface ProfileData {
   duration?: number
   startTime?: number
   error?: string
-  currentTask?: TaskProgress
+  currentTask?: TaskProgress // Updated to use the new TaskProgress interface
 }
 
 export interface LogEntry {
@@ -44,4 +47,6 @@ export interface MonitoringData {
   logs: LogEntry[]
   systemMetrics: SystemMetrics
   taskProgress: { [profileId: string]: TaskProgress }
+  tasksConfig?: TaskConfiguration[];
+  selectorsConfig?: Selectors;
 }

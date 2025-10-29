@@ -1,20 +1,27 @@
 import { AuditLogger } from '../utils/audit-logger';
 import { IxBrowserClient } from '../utils/ixBrowserClient';
+import { UnifiedLogger } from '../utils/unified-logger';
+import { Profile } from '../types/core';
+import { ProfileConnectionError } from '../utils/errors';
 
 export class ProfileManager {
   private ixBrowserClient: IxBrowserClient;
   private auditLogger: AuditLogger;
-  private _cachedProfiles: any[] | undefined;
+  private logger: UnifiedLogger;
+  private _cachedProfiles: Profile[] | undefined;
 
-  constructor(ixBrowserClient: IxBrowserClient, auditLogger: AuditLogger) {
+  constructor(ixBrowserClient: IxBrowserClient, auditLogger: AuditLogger, logger: UnifiedLogger) {
     this.ixBrowserClient = ixBrowserClient;
     this.auditLogger = auditLogger;
+    this.logger = logger;
   }
 
-  async getOpenedProfiles(): Promise<any[]> {
+  async getOpenedProfiles(): Promise<Profile[]> {
     await this.auditLogger.logStepStart('session', 'fetch_profiles');
     try {
+      this.logger.log('Fetching opened profiles...');
       const profiles = await this.ixBrowserClient.getOpenedProfiles();
+      this.logger.log(`Found ${profiles.length} opened profiles.`);
       await this.auditLogger.logStepEnd(
         'session',
         'fetch_profiles',
@@ -25,7 +32,8 @@ export class ProfileManager {
       );
       return profiles;
     } catch (error) {
-      console.warn(`Profile fetch error: ${(error as Error).message}`);
+      const errorMessage = (error instanceof Error) ? error.message : 'Unknown profile fetch error';
+      this.logger.warn(`Profile fetch error: ${errorMessage}`);
       await this.auditLogger.logStepEnd(
         'session',
         'fetch_profiles',
@@ -33,16 +41,18 @@ export class ProfileManager {
         null,
         null,
         {},
-        (error as Error).message,
+        errorMessage,
       );
-      return [];
+      throw new ProfileConnectionError(`Failed to fetch opened profiles: ${errorMessage}`, 'N/A', { originalError: error });
     }
   }
 
-  async getOpenedProfilesLazy(): Promise<any[]> {
+  async getOpenedProfilesLazy(): Promise<Profile[]> {
     if (this._cachedProfiles) {
+      this.logger.log('Returning cached profiles.');
       return this._cachedProfiles;
     }
+    this.logger.log('Fetching profiles (lazy load)...');
     this._cachedProfiles = await this.getOpenedProfiles();
     return this._cachedProfiles;
   }
