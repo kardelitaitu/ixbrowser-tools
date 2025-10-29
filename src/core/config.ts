@@ -8,7 +8,7 @@ const taskSchema = z.object({
   type: z.string(),
   handle: z.string().optional(),
   inviteUrl: z.string().optional(),
-  options: z.record(z.any()).optional(), // Looser for now, can be refined per task
+  options: z.record(z.string(), z.unknown()).optional(), // Looser for now, can be refined per task
   stopOnFailure: z.boolean().optional(),
 });
 
@@ -54,7 +54,7 @@ export class ConfigService {
       return this.tasks;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error(`Invalid tasks.json structure: ${error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
+        console.error(`Invalid tasks.json structure: ${error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
       } else {
         console.error(`Error loading tasks.json: ${(error as Error).message}`);
       }
@@ -74,7 +74,7 @@ export class ConfigService {
       return this.selectors;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error(`Invalid selectors.json structure: ${error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
+        console.error(`Invalid selectors.json structure: ${error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
       } else {
         console.error(`Error loading selectors.json: ${(error as Error).message}`);
       }

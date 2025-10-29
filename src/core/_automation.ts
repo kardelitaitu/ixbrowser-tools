@@ -38,7 +38,7 @@ taskRegistry.set(gmailReadType, gmailReadRun);
 export class BrowserAutomation {
   public config: BrowserAutomationConfig;
   public logger: UnifiedLogger;
-  private auditLogger: AuditLogger;
+  public auditLogger: AuditLogger;
   private configService: ConfigService;
 
   constructor(auditLogger: AuditLogger, config: Partial<BrowserAutomationConfig> = {}) {

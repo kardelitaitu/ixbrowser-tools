@@ -1,7 +1,8 @@
 import { Page } from 'playwright';
 import { findElementSmart } from '../utils/element-finder';
 import { retryWithBackoff } from '../utils/retry-utils';
-import { BaseTask, AutomationInstance, TaskResult, TaskOptions } from './BaseTask';
+import { BaseTask } from './BaseTask';
+import { TaskOptions, AutomationInstance, TaskResult } from '../types/tasks';
 
 /**
  * @fileoverview Modular Twitter follow task using the BaseTask structure.

@@ -1,5 +1,5 @@
 import { ProfileData, LogEntry, MonitoringData, TaskProgress } from '../types'
-import si from 'systeminformation'
+import * as si from 'systeminformation'
 
 const LOGS_DIR = '../logs'
 const PROJECT_ROOT = '../'
@@ -37,8 +37,7 @@ export class DataService {
                   profileId,
                   profileName: entry.profileName || `Profile-${profileId}`,
                   status: 'idle',
-                  startTime: new Date(entry.timestamp).getTime(),
-                  metrics: {}
+                  startTime: new Date(entry.timestamp).getTime()
                 })
               }
 
@@ -83,7 +82,7 @@ export class DataService {
             const match = line.match(/\[([^\]]+)\] \[([^\]]+)\] (.+)/)
             if (match) {
               logs.push({
-                timestamp: match[1],
+                timestamp: Date.parse(match[1]),
                 level: match[2] as LogEntry['level'],
                 message: match[3]
               })
@@ -102,7 +101,8 @@ export class DataService {
     try {
       // Real CPU usage
       const cpu = await si.cpu()
-      const cpuUsage = cpu.usage || 0
+      const cpuLoad = await si.currentLoad()
+      const cpuUsage = cpuLoad.currentLoad || 0
 
       // Real RAM usage
       const mem = await si.mem()
@@ -113,6 +113,8 @@ export class DataService {
       const disks = await si.fsSize()
       const cDrive = disks.find(d => d.mount === 'C:' || d.mount.startsWith('C:'))
       const storageUsage = cDrive ? Math.round((cDrive.used / cDrive.size) * 100) : 0
+      const storageUsed = cDrive ? Math.round(cDrive.used / (1024 ** 3)) : 0 // GB
+      const storageTotal = cDrive ? Math.round(cDrive.size / (1024 ** 3)) : 0 // GB
 
       // Internet download speed (Mbps)
       const network = await si.networkStats()
@@ -124,6 +126,8 @@ export class DataService {
         usedMemory,
         cpuUsage: Math.round(cpuUsage),
         storageUsage,
+        storageUsed,
+        storageTotal,
         downloadSpeed
       }
     } catch (error) {
@@ -135,6 +139,8 @@ export class DataService {
         usedMemory: 8,
         cpuUsage: 45,
         storageUsage: 50,
+        storageUsed: 0,
+        storageTotal: 0,
         downloadSpeed: 10
       }
     }

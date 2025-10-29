@@ -13,6 +13,23 @@ jest.mock('playwright', () => ({
   },
 }));
 
+// Declare global test utilities type
+declare global {
+  var testUtils: {
+    wait: (ms: number) => Promise<void>;
+    mockBrowser: () => {
+      contexts: () => any[];
+      newPage: jest.MockedFunction<any>;
+      close: jest.MockedFunction<any>;
+    };
+    mockPage: () => {
+      addInitScript: jest.MockedFunction<any>;
+      route: jest.MockedFunction<any>;
+      close: jest.MockedFunction<any>;
+    };
+  };
+}
+
 // Global test utilities
 global.testUtils = {
   wait: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),

@@ -1,7 +1,8 @@
 import { Page } from 'playwright';
 import { findElementSmart } from '../utils/element-finder';
 import { retryWithBackoff } from '../utils/retry-utils';
-import { BaseTask, AutomationInstance, TaskResult, TaskOptions } from './BaseTask';
+import { BaseTask } from './BaseTask';
+import { TaskOptions, AutomationInstance, TaskResult } from '../types/tasks';
 import { getDelayRange } from '../utils/delay-getRange';
 
 /**
@@ -17,16 +18,16 @@ const DEFAULT_OPTIONS: TaskReadGmailOptions = {
   verifyOnly: false,
 };
 
-class TaskReadGmail extends BaseTask<TaskReadGmailOptions, void> {
+class TaskReadGmail extends BaseTask<TaskReadGmailOptions, null> {
   getTaskName(): string {
     return 'taskReadGmail';
   }
 
-  getTaskIdentifier(): string {
+  getTaskIdentifier(_data: null): string {
     return 'Gmail Inbox';
   }
 
-  async navigate(): Promise<void> {
+  async navigate(_data: null): Promise<void> {
     const gmailUrl = 'https://mail.google.com/mail/u/0/#inbox';
     this.logger(`Navigating to Gmail inbox: ${gmailUrl}`);
     await this.page.goto(gmailUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -49,12 +50,12 @@ class TaskReadGmail extends BaseTask<TaskReadGmailOptions, void> {
     }
   }
 
-  async isAlreadyCompleted(): Promise<boolean> {
+  async isAlreadyCompleted(_data: null): Promise<boolean> {
     // This task is about reading, so it's never "completed" in the same way as a follow/join task.
     return false;
   }
 
-  async execute(): Promise<void> {
+  async execute(_data: null): Promise<void> {
     if (this.options.randomDelay) {
       this.logger('Adding random delay before clicking mail');
       await this.automation.delay('medium');
@@ -71,7 +72,7 @@ class TaskReadGmail extends BaseTask<TaskReadGmailOptions, void> {
     this.logger('Finished simulating email reading.');
   }
 
-  async verify(): Promise<TaskResult> {
+  async verify(_data: null): Promise<TaskResult> {
     // Verification for this task means the inbox is loaded and we are logged in.
     // The actual reading action is transient.
     this.logger('Verification for Gmail read is successful if navigation and login are complete.');
@@ -91,5 +92,5 @@ export async function run(
   selectors: any,
 ): Promise<TaskResult> {
   const task = new TaskReadGmail(page, automation, { ...DEFAULT_OPTIONS, ...options }, profileId, profileName, selectors);
-  return task.run();
+  return task.run(null);
 }

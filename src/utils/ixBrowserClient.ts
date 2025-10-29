@@ -1,5 +1,6 @@
 import { retryNetworkOperation } from './retry-utils';
 import { NetworkError, ProfileConnectionError } from './errors';
+import { Profile } from '../types/core';
 
 interface ApiResponse {
   error: { code: number; message: string };
@@ -33,7 +34,7 @@ export class IxBrowserClient {
     }, 3);
   }
 
-  async getOpenedProfiles(): Promise<unknown[]> {
+  async getOpenedProfiles(): Promise<Profile[]> {
     const openedResponse = await this.apiRequest('/api/v2/profile-opened-list', 'POST');
     if (openedResponse.error.code !== 0) {
       throw new Error(`Failed to get opened profiles: ${openedResponse.error.message}`);
@@ -50,7 +51,7 @@ export class IxBrowserClient {
     }
 
     const profiles = ((allProfilesResponse.data as any).data || []).filter((p: unknown) => openedProfileIds.has((p as any).profile_id));
-    return profiles;
+    return profiles as Profile[];
   }
 
   async openProfile(profileId: string): Promise<ApiResponse> {

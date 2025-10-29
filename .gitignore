@@ -20,6 +20,8 @@ GEMINI.md
 
 # Environment variables
 .env
+# Licensing
+licensing/
 
 # Licensing Master Key file and readme
 licensing-master/

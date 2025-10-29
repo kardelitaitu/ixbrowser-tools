@@ -30,7 +30,7 @@ export class ProfileManager {
         null,
         { profileCount: profiles.length },
       );
-      return profiles;
+      return profiles as Profile[];
     } catch (error) {
       const errorMessage = (error instanceof Error) ? error.message : 'Unknown profile fetch error';
       this.logger.warn(`Profile fetch error: ${errorMessage}`);
