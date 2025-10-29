@@ -84,7 +84,7 @@ ixbrowser-playwright/
     ```bash
     # Clone the project
     git clone <repo-url>
-    cd ixbrowser-playwright
+    cd ixbrowser-tools
 
     # Install the main automation dependencies
     npm install
