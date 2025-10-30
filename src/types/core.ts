@@ -1,5 +1,5 @@
 import { Browser, BrowserContext, Page } from 'playwright';
-import { TaskOptions, TaskResult } from '../types/tasks';
+import { TaskOptions } from '../types/tasks';
 
 /**
  * @fileoverview Centralized type definitions for core automation modules.

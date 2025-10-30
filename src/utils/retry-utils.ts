@@ -48,7 +48,7 @@ export async function retryWithBackoff<T>(operation: () => Promise<T>, options: 
       delay = delay - (delay * 0.1) + jitter;
       delay = Math.min(delay, maxDelay);
 
-      console.log(`Attempt ${attempt} failed (${(error as AutomationError).type || 'unknown'}), retrying in ${Math.round(delay)}ms...`);
+      console.log(`Attempt ${attempt} failed, retry in ${Math.round(delay)}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }

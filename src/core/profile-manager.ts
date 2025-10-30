@@ -33,7 +33,7 @@ export class ProfileManager {
       return profiles as Profile[];
     } catch (error) {
       const errorMessage = (error instanceof Error) ? error.message : 'Unknown profile fetch error';
-      this.logger.warn(`Profile fetch error: ${errorMessage}`);
+      this.logger.warn(`Profile fetch err: ${errorMessage}`);
       await this.auditLogger.logStepEnd(
         'session',
         'fetch_profiles',

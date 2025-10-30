@@ -13,7 +13,8 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src/**/*.ts --ignore-pattern .eslintrc.js --ignore-pattern jest.config.js --ignore-pattern monitoring/**",
     "lint:fix": "eslint src/**/*.ts --ignore-pattern .eslintrc.js --ignore-pattern jest.config.js --ignore-pattern monitoring/** --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "update-tasks": "ts-node scripts/generate-task-registry.ts"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

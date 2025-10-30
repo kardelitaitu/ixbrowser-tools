@@ -37,7 +37,7 @@ export class AutomationRunner {
     const profileId = profile.profile_id || profile.id;
     const profileName = profile.name || `Profile-${profileId}`;
 
-    this.logger.log(`Starting automation for profile: ${profileName} (${profileId})`);
+    this.logger.log(`Start auto for ${profileName} (${profileId})`);
     await this.browserAutomation.auditLogger.logStepStart(
       'profile',
       'automation_run',
@@ -59,9 +59,7 @@ export class AutomationRunner {
         );
         const duration = Date.now() - startTime;
 
-        this.logger.log(
-          `Automation for profile ${profileName} (${profileId}) completed successfully in ${duration}ms. Result type: ${result.type}`,
-        );
+        this.logger.log(`Auto for ${profileName} (${profileId}) done in ${duration}ms.`);
         await this.browserAutomation.auditLogger.logStepEnd(
           'profile',
           'automation_run',
@@ -82,9 +80,7 @@ export class AutomationRunner {
         };
       } catch (automationError) {
         const errorMessage = (automationError instanceof Error) ? automationError.message : 'Unknown automation error';
-        this.logger.error(
-          `Automation for profile ${profileName} (${profileId}) failed: ${errorMessage}`,
-        );
+        this.logger.error(`Auto for ${profileName} (${profileId}) failed: ${errorMessage}`);
         await this.browserAutomation.auditLogger.logStepEnd(
           'profile',
           'automation_run',
@@ -103,13 +99,11 @@ export class AutomationRunner {
         };
       } finally {
         await page.close();
-        this.logger.log(`Page closed for profile ${profileName} (${profileId})`);
+        this.logger.log(`Page closed for ${profileName} (${profileId})`);
       }
     } catch (connectionError) {
       const errorMessage = (connectionError instanceof Error) ? connectionError.message : 'Unknown connection error';
-      this.logger.error(
-        `Connection to profile ${profileName} (${profileId}) failed: ${errorMessage}`,
-      );
+      this.logger.error(`Conn to ${profileName} (${profileId}) failed: ${errorMessage}`);
       await this.browserAutomation.auditLogger.logStepEnd(
         'profile',
         'automation_run',
@@ -130,12 +124,12 @@ export class AutomationRunner {
   }
 
   async runParallelAutomation(profiles: Profile[]): Promise<{ results: { success: boolean; profileId: string; profileName: string; result?: AutomationRunResult; duration?: number; error?: string; type?: string; }[]; summary: Summary }> {
-    this.logger.log('Starting parallel automation across all opened profiles.');
+    this.logger.log('Start parallel auto for all profiles.');
     await this.browserAutomation.auditLogger.logStepStart('session', 'parallel_execution');
 
     try {
       if (profiles.length === 0) {
-        this.logger.warn('No profiles found to automate.');
+        this.logger.warn('No profiles to auto.');
         await this.browserAutomation.auditLogger.logStepEnd(
           'session',
           'parallel_execution',
@@ -147,7 +141,7 @@ export class AutomationRunner {
         return { results: [], summary: { total: 0, successful: 0, failed: 0, successRate: '0.0', totalDuration: 0 } };
       }
 
-      this.logger.log(`Found ${profiles.length} profiles for parallel automation.`);
+      this.logger.log(`Found ${profiles.length} profiles for parallel auto.`);
       const startTime = Date.now();
       const automationPromises = profiles.map((profile) =>
         Promise.race([
@@ -183,9 +177,7 @@ export class AutomationRunner {
       );
 
       const summary = this.generateSummary(processedResults, Date.now() - startTime);
-      this.logger.log(
-        `Parallel automation completed. Summary: Total: ${summary.total}, Successful: ${summary.successful}, Failed: ${summary.failed}, Success Rate: ${summary.successRate}%`,
-      );
+      this.logger.log(`Parallel auto done. Sum: ${summary.successful}/${summary.total} OK`);
       await this.browserAutomation.auditLogger.logStepEnd(
         'session',
         'parallel_execution',
@@ -203,7 +195,7 @@ export class AutomationRunner {
       };
     } catch (error) {
       const errorMessage = (error instanceof Error) ? error.message : 'Unknown parallel automation error';
-      this.logger.error(`Parallel automation failed: ${errorMessage}`);
+      this.logger.error(`Parallel auto failed: ${errorMessage}`);
       await this.browserAutomation.auditLogger.logStepEnd(
         'session',
         'parallel_execution',

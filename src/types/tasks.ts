@@ -10,8 +10,8 @@ export interface TaskOptions {
 }
 
 export interface AutomationInstance {
-  delay: (profile: 'short' | 'medium' | 'long' | 'reading') => Promise<void>;
-  logger: (msg: string) => void;
+  delay: (_profile: string) => Promise<void>;
+  logger: (_msg: string) => void;
   auditLogger: AuditLogger;
 }
 

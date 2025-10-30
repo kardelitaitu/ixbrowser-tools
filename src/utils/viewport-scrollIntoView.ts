@@ -42,7 +42,7 @@ export async function scrollIntoViewIfNeeded(
       await page.waitForTimeout(Math.random() * 200 + 100);
     }
   } catch (error) {
-    const errorMessage = `Scroll into view failed for "${selector}": ${(error as Error).message}`;
+    const errorMessage = `Scroll failed for "${selector}": ${(error as Error).message}`;
     console.error(errorMessage);
     if (throwOnError) {
       throw new Error(errorMessage);

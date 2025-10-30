@@ -38,9 +38,7 @@ export function enhancePage(
     try {
       await scrollIntoViewIfNeeded(page, selector, { block: 'center', delay });
     } catch (e) {
-      logger(
-        `scrollIntoViewIfNeeded warning for ${selector}: ${e && (e as Error).message ? (e as Error).message : e}`,
-      );
+      logger(`Scroll warning for ${selector}: ${e && (e as Error).message ? (e as Error).message : e}`);
     }
     return baseHumanClick(selector);
   };

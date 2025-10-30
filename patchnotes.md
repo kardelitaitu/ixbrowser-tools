@@ -1,5 +1,58 @@
 # Patch Notes
 
+## Version 1.1.18 (2025-10-30)
+- **Developer Experience & Framework Refinements:**
+  - **Automated Task Registration:** Introduced a new script (`scripts/generate-task-registry.ts`) and an `npm run update-tasks` command to automatically discover and register all tasks from the `src/tasks` directory into the core automation engine (`src/core/_automation.ts`). This eliminates the need for manual registration, reducing boilerplate and potential for human error.
+  - **Robust `BaseTask` Execution:** Refactored the `run` method in `src/tasks/BaseTask.ts` to simplify its control flow. The new logic gracefully handles execution errors and uses a single, final verification step to determine the task's outcome, improving reliability and making the process easier to debug.
+  - **Enhanced Selector Guide:** Added a practical, step-by-step guide to `src/tasks/task-readme.md` on how to use browser developer tools to find, copy, and test CSS selectors, empowering users to create more resilient automation tasks.
+  - **Code Standardization:** Standardized the `run` function signature in `src/tasks/taskExample.ts` to align with the conventions used in other tasks, improving overall code consistency.
+
+## Version 1.1.17 (2025-10-30)
+- **Task Example and Documentation Refinement:**
+  - Further refined the `taskExample.ts` code snippet and its introductory text for clarity and conciseness.
+  - Provided detailed explanation on implementing manual delays and using direct selectors within tasks.
+
+## Version 1.1.16 (2025-10-30)
+- **Task Guide Clarity Improvement:**
+  - Further refined the 'Detailed Explanation of Task Parameters and Options' section in `src/tasks/task-readme.md` to be even more beginner-friendly, using simpler vocabulary, analogies, and clearer explanations for a non-native English speaking audience.
+
+## Version 1.1.15 (2025-10-30)
+- **Enhanced Task Example:**
+  - Updated `src/tasks/taskExample.ts` with more detailed comments and examples for parameters, specifically highlighting the usage of new dynamic delay parameters for improved user experience.
+
+## Version 1.1.14 (2025-10-30)
+- **Further Beginner-Friendly Task Guide Revision:**
+  - Significantly revised the 'Detailed Explanation of Task Parameters and Options' section in `src/tasks/task-readme.md` to be even more accessible for beginners, using simpler vocabulary, analogies, and clearer explanations.
+
+## Version 1.1.13 (2025-10-30)
+- **Dynamic Delay Parameters:**
+  - Updated `src/utils/delay-getRange.ts` to support dynamic delay inputs (e.g., "1s", "0.5", "2-5s"), interpreting all numeric inputs as seconds and converting to milliseconds.
+  - Revised `src/tasks/task-readme.md` to explain these new dynamic delay formats for `this.automation.delay()`.
+
+## Version 1.1.12 (2025-10-30)
+- **Beginner-Friendly Task Guide Revision:**
+  - Significantly revised `src/tasks/task-readme.md` to be even more beginner-friendly, incorporating simplified language, more relatable examples, creative task ideas, and a direct explanation of selectors for easier task creation.
+
+## Version 1.1.11 (2025-10-30)
+- **Beginner-Friendly Task Guide:**
+  - Revised `src/tasks/task-readme.md` to be more beginner-friendly, including simplified language, more relatable examples, creative task ideas, and integrated selector explanations for easier task creation.
+
+## Version 1.1.10 (2025-10-30)
+- **Enhanced Task Documentation:**
+  - Added a detailed explanation of all task parameters and options to `src/tasks/task-readme.md`, covering `BaseTask` methods, enhanced `Page` methods, and `TaskOptions` for clearer task creation guidance.
+
+## Version 1.1.9 (2025-10-30)
+- **New Task Documentation:**
+  - Created `src/tasks/task-readme.md` to provide a simple guide for users on how to create new automation tasks, explaining core concepts and step-by-step instructions.
+
+## Version 1.1.8 (2025-10-30)
+- **New Example Task:**
+  - Created `src/tasks/taskExample.ts` to demonstrate the usage of common automation actions (navigation, clicking, typing, scrolling, delays) within the `BaseTask` framework.
+
+## Version 1.1.7 (2025-10-30)
+- **Logging Compaction:**
+  - All logging messages across the `src/` directory have been compacted to be no more than 60 characters for improved readability and conciseness in console output.
+
 ## Version 1.1.6 (2025-10-29)
 - **Core Architecture Refinement:**
   - **Centralized Configuration:** Introduced `ConfigService` (`src/core/config.ts`) for unified loading and validation of `tasks.json`, `selectors.json`, and environment variables.
@@ -7,7 +60,8 @@
   - **Comprehensive Type Definitions:** Created `src/types/core.ts` to define robust interfaces for profiles, task configurations, selectors, and automation results, enhancing type safety.
   - **Refined Error Handling:** Enhanced `src/utils/errors.ts` with `ConfigurationError` and ensured consistent use of custom error classes throughout core modules.
   - **Modular Core:** Refactored `_automation.ts`, `_launchAutomation.ts`, `automation-runner.ts`, `browser-pool.ts`, and `profile-manager.ts` to leverage the new architecture, improving modularity, testability, and maintainability.
-- **Enhanced Monitoring Tool:**
+  - **Accessibility Fix:** Changed auditLogger property from private to public in [`src/core/_automation.ts`](src/core/_automation.ts) to allow access from AutomationRunner, fixing a TypeScript accessibility error.
+  - **Enhanced Monitoring Tool:**
   - **Granular Task Progress:**
     - `BaseTask.ts` now emits detailed `task_progress` events via `auditLogger`.
     - `monitoring/types/index.ts` and `monitoring/services/dataService.ts` updated to consume and process these granular progress events.

@@ -13,7 +13,8 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     'no-console': 'off', // Allow console.log for logging
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'prefer-const': 'error',
     'no-var': 'error',
     'object-shorthand': 'error',
@@ -22,8 +23,9 @@ module.exports = {
     'comma-dangle': ['error', 'always-multiline'], // Require trailing commas
     'space-before-function-paren': ['error', 'never'], // No space before function parens
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn'
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': ['error'],
+    '@typescript-eslint/no-explicit-any': 'off'
   },
   ignorePatterns: ['node_modules/', 'logs/', 'old copy/', '*.log', 'dist/']
 }

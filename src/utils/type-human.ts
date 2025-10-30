@@ -81,7 +81,7 @@ export async function humanType(
       await delay('short');
     }
   } catch (error) {
-    console.error(`Human type failed for "${selector}": ${(error as Error).message}`);
+    console.error(`Type failed for "${selector}": ${(error as Error).message}`);
     throw error;
   }
 }

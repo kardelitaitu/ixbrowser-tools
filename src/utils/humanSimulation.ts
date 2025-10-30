@@ -32,13 +32,13 @@ export async function simulateMouseMovement(
   try {
     const viewport = page.viewportSize();
     if (!viewport) {
-      console.log('Viewport not available, skipping mouse simulation');
+      console.log('Viewport not avail, skip mouse sim');
       return;
     }
 
     const elementBox = await element.boundingBox();
     if (!elementBox) {
-      console.log('Element not visible, skipping mouse simulation');
+      console.log('Element not visible, skip mouse sim');
       return;
     }
 
@@ -169,7 +169,7 @@ export async function simulateMouseMovement(
     const hesitationDelay = Math.floor(Math.random() * 150) + 50; // 50-200ms
     await page.waitForTimeout(hesitationDelay);
   } catch (error) {
-    console.log('Mouse movement simulation failed:', (error as Error).message);
+    console.log('Mouse move sim failed:', (error as Error).message);
     // Continue with click even if movement fails
   }
 }
@@ -182,7 +182,7 @@ export async function simulateMouseMovement(
  */
 export function randomDelay(min: number, max: number): Promise<void> {
   const delay = Math.floor(Math.random() * (max - min + 1)) + min;
-  console.log(`⏱️ Waiting ${delay}ms...`);
+  console.log(`⏱️ Wait ${delay}ms...`);
   return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
@@ -219,9 +219,9 @@ export function addHumanClickToPage(page: Page): void {
       const postClickDelay = Math.floor(Math.random() * 200) + 100; // 100-300ms
       await page.waitForTimeout(postClickDelay);
 
-      console.log(`✅ Human-like click performed on: ${selector}`);
+      console.log(`✅ Human click on: ${selector}`);
     } catch (error) {
-      console.log(`❌ humanClick failed on ${selector}:`, (error as Error).message);
+      console.log(`❌ humanClick failed on ${selector}:`, error.message);
       throw error;
     }
   };
@@ -251,9 +251,9 @@ export function addHumanScrollToPage(page: Page): void {
         const delay = Math.floor(Math.random() * 150) + 50; // 50-200ms delay between scroll bursts
         await page.waitForTimeout(delay);
       }
-      console.log(`✅ Human-like scroll performed: ${direction} by ${amount}`);
+      console.log(`✅ Human scroll: ${direction} by ${amount}`);
     } catch (error) {
-      console.log('Human scroll failed:', (error as Error).message);
+      console.log('Scroll failed:', (error as Error).message);
     }
   };
 }
@@ -299,6 +299,6 @@ export async function humanScroll(
       await page.waitForTimeout(waitTime);
     }
   } catch (error) {
-    console.log('Human scroll failed:', (error as Error).message);
+    console.log('Scroll failed:', (error as Error).message);
   }
 }

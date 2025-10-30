@@ -1,4 +1,4 @@
-import { chromium, Browser, BrowserContext, Page, Route } from 'playwright';
+import { chromium, Page, Route } from 'playwright';
 import { AuditLogger } from '../utils/audit-logger';
 import { IxBrowserClient } from '../utils/ixBrowserClient';
 import { retryProfileConnection } from '../utils/retry-utils';
@@ -60,7 +60,7 @@ export class BrowserPool {
    */
   async setupResourceBlocking(page: Page, blockResources: string[] = []): Promise<void> {
     if (blockResources.length === 0) {
-      this.logger.log('No resources specified for blocking.');
+      this.logger.log('No resources for blocking.');
       return;
     }
 
@@ -95,7 +95,7 @@ export class BrowserPool {
         }
       },
     );
-    this.logger.log(`Resource blocking enabled for: ${blockResources.join(', ')}`);
+    this.logger.log(`Resource blocking for: ${blockResources.join(', ')}`);
   }
 
   async connectToProfile(profile: Profile): Promise<PooledConnection> {
@@ -106,7 +106,7 @@ export class BrowserPool {
       const pooled = this.pool.get(profileId);
       if (pooled && Date.now() - pooled.lastUsed < this.timeout) {
         pooled.lastUsed = Date.now(); // Update lastUsed even if reused
-        this.logger.log(`Reusing pooled connection for profile ${profile.name} (${profileId})`);
+        this.logger.log(`Reusing pooled conn for ${profile.name} (${profileId})`);
         await this.auditLogger.logStepEnd(
           'profile',
           'connect',
@@ -120,7 +120,7 @@ export class BrowserPool {
 
       this.cleanupPool();
 
-      this.logger.log(`Attempting to open profile ${profile.name} (${profileId})`);
+      this.logger.log(`Open profile ${profile.name} (${profileId})`);
       const response = await retryProfileConnection(async() => {
         return await this.ixBrowserClient.openProfile(profileId);
       }, 3);
@@ -144,7 +144,7 @@ export class BrowserPool {
 
       if (this.pool.size < this.maxSize) {
         this.pool.set(profileId, connection);
-        this.logger.log(`Added profile ${profile.name} (${profileId}) to pool. Current size: ${this.pool.size}`);
+        this.logger.log(`Added ${profile.name} (${profileId}) to pool. Size: ${this.pool.size}`);
       }
 
       await this.auditLogger.logStepEnd(
@@ -158,7 +158,7 @@ export class BrowserPool {
       return connection;
     } catch (error) {
       const errorMessage = (error instanceof Error) ? error.message : 'Unknown connection error';
-      this.logger.error(`Failed to connect to profile ${profile.name} (${profileId}): ${errorMessage}`);
+      this.logger.error(`Conn to ${profile.name} (${profileId}) failed: ${errorMessage}`);
       await this.auditLogger.logStepEnd(
         'profile',
         'connect',
@@ -178,9 +178,9 @@ export class BrowserPool {
       if (now - conn.lastUsed > this.timeout) {
         this.pool.delete(id);
         conn.browser.close().catch((error) => {
-          this.logger.warn(`Error closing idle browser for profile ${conn.profileData.name} (${id}): ${(error as Error).message}`);
+          this.logger.warn(`Error closing idle browser for ${conn.profileData.name}: ${error.message}`);
         });
-        this.logger.log(`Cleaned up idle connection for profile ${conn.profileData.name} (${id})`);
+        this.logger.log(`Cleaned idle conn for ${conn.profileData.name} (${id})`);
       }
     }
   }
@@ -189,17 +189,17 @@ export class BrowserPool {
    * Closes all pooled connections.
    */
   async closeAll(): Promise<void> {
-    this.logger.log('Closing all pooled browser connections.');
+    this.logger.log('Closing all pooled browser conns.');
     for (const [id, conn] of this.pool) {
       try {
         await conn.browser.close();
-        this.logger.log(`Closed connection for profile ${conn.profileData.name} (${id})`);
+        this.logger.log(`Closed conn for ${conn.profileData.name} (${id})`);
       } catch (error) {
-        this.logger.error(`Error closing browser for profile ${conn.profileData.name} (${id}): ${(error as Error).message}`);
+        this.logger.error(`Error closing browser for ${conn.profileData.name}: ${error.message}`);
       }
       this.pool.delete(id);
     }
-    this.logger.log('All pooled browser connections closed.');
+    this.logger.log('All pooled browser conns closed.');
   }
 
   /**

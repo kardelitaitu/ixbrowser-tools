@@ -33,8 +33,6 @@ export class ConfigService {
   private tasks: TaskConfiguration[] | null = null;
   private selectors: Selectors | null = null;
 
-  private constructor() {}
-
   public static getInstance(): ConfigService {
     if (!ConfigService.instance) {
       ConfigService.instance = new ConfigService();
@@ -54,9 +52,9 @@ export class ConfigService {
       return this.tasks;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error(`Invalid tasks.json structure: ${error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
+        console.error(`Invalid tasks.json: ${error.issues[0].message}`);
       } else {
-        console.error(`Error loading tasks.json: ${(error as Error).message}`);
+        console.error(`Load tasks.json error: ${(error as Error).message}`);
       }
       return [];
     }
@@ -74,9 +72,9 @@ export class ConfigService {
       return this.selectors;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error(`Invalid selectors.json structure: ${error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
+        console.error(`Invalid selectors.json: ${error.issues[0].message}`);
       } else {
-        console.error(`Error loading selectors.json: ${(error as Error).message}`);
+        console.error(`Load selectors.json error: ${(error as Error).message}`);
       }
       return {} as Selectors; // Return empty selectors on error
     }

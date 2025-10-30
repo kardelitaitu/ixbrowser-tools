@@ -9,6 +9,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "lib": ["es2022", "dom", "es2015.iterable"],
     "baseUrl": ".",
     "paths": {
@@ -17,10 +19,11 @@
     }
   },
   "include": [
+    "src",
     "test-licensing.ts",
     "licensing/**/*.ts",
-    "licensing-master/**/*.ts"
-, "licensing/check-license.js"  ],
+    "licensing-master/**/*.ts",
+    "licensing/check-license.js"  ],
   "exclude": [
     "node_modules"
   ]

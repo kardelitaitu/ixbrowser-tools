@@ -5,12 +5,14 @@ import { enhancePage } from '../utils/page-enhance';
 import { AuditLogger } from '../utils/audit-logger';
 import { UnifiedLogger } from '../utils/unified-logger';
 import { ConfigService } from './config';
-import { TaskConfiguration, Selectors, AutomationRunResult, Profile, BrowserAutomationConfig } from '../types/core';
-import { TaskError, ConfigurationError } from '../utils/errors';
-import { BaseTask } from '../tasks/BaseTask';
+import { AutomationRunResult, Profile, BrowserAutomationConfig } from '../types/core';
+import { TaskError } from '../utils/errors';
+// START: AUTO-GENERATED-TASK-IMPORTS
 import { run as twitterFollowRun, type as twitterFollowType } from '../tasks/taskFollowTwitter';
 import { run as discordJoinRun, type as discordJoinType } from '../tasks/taskJoinDiscord';
 import { run as gmailReadRun, type as gmailReadType } from '../tasks/taskReadGmail';
+import { run as taskExampleRun, type as taskExampleType } from '../tasks/taskExample';
+// END: AUTO-GENERATED-TASK-IMPORTS
 
 /**
  * @fileoverview Advanced Human-Like Browser Automation
@@ -31,9 +33,12 @@ const DEFAULT_CONFIG: BrowserAutomationConfig = {
 // We store the 'run' function directly, as the BaseTask refactoring means the 'run' function
 // is now a factory that returns a TaskResult.
 const taskRegistry = new Map<string, Function>();
+// START: AUTO-GENERATED-TASK-REGISTRY
 taskRegistry.set(twitterFollowType, twitterFollowRun);
 taskRegistry.set(discordJoinType, discordJoinRun);
 taskRegistry.set(gmailReadType, gmailReadRun);
+taskRegistry.set(taskExampleType, taskExampleRun);
+// END: AUTO-GENERATED-TASK-REGISTRY
 
 export class BrowserAutomation {
   public config: BrowserAutomationConfig;
@@ -55,7 +60,7 @@ export class BrowserAutomation {
   async delay(profile: 'instant' | 'short' | 'medium' | 'long' | 'reading' = 'medium'): Promise<void> {
     const { min, max } = getDelayRange(profile);
     if (this.config.randomDelays) {
-      this.logger.log(`⏱️ Waiting ${min}-${max}ms (${profile})...`);
+      this.logger.log(`Wait ${min}-${max}ms (${profile})...`);
       return randomDelay(min, max);
     }
     // Fallback deterministic short pause
@@ -81,7 +86,7 @@ export class BrowserAutomation {
     const allTaskResults: any[] = [];
 
     const profileLogger = new UnifiedLogger(this.auditLogger, profileName);
-    profileLogger.log(`Starting automation run for profile ${profileId}`);
+    profileLogger.log(`Start auto run for profile ${profileId}`);
 
     try {
       await this.auditLogger.logStepStart(
@@ -105,14 +110,14 @@ export class BrowserAutomation {
         typeVariation: this.config.typeVariation,
       });
 
-      profileLogger.log('Starting dynamic task execution');
+      profileLogger.log('Start dynamic task execution');
 
       const tasks = await this.configService.loadTasks();
       const selectors = await this.configService.loadSelectors();
 
       for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
-        profileLogger.log(`Executing task ${i + 1}/${tasks.length}: ${task.type} - ${task.handle || task.inviteUrl || 'N/A'}`);
+        profileLogger.log(`Exec task ${i + 1}/${tasks.length}: ${task.type}`);
         let taskResult: any = { success: false, type: task.type, handle: task.handle || 'N/A', error: 'Task not executed' };
 
         try {
@@ -131,16 +136,14 @@ export class BrowserAutomation {
           } else {
             throw new TaskError(`Unknown task type: ${task.type}`, task.type);
           }
-          profileLogger.log(
-            `Task ${task.type} for ${task.handle || task.inviteUrl || 'N/A'} complete: ${taskResult.success ? '✅' : '❌'}. Result: ${JSON.stringify(taskResult)}`,
-          );
+          profileLogger.log(`Task ${task.type} complete: ${taskResult.success ? '✅' : '❌'}`);
         } catch (taskError) {
           const errorMessage = (taskError instanceof Error) ? taskError.message : 'Unknown task error';
-          profileLogger.error(`Task ${task.type} for ${task.handle || task.inviteUrl || 'N/A'} failed: ${errorMessage}`);
+          profileLogger.error(`Task ${task.type} failed: ${errorMessage}`);
           taskResult.success = false;
           taskResult.error = errorMessage;
           if (task.stopOnFailure) {
-            profileLogger.warn(`Stopping further tasks for this profile due to critical failure in task ${task.type}.`);
+            profileLogger.warn(`Stop tasks for ${task.type} due to failure.`);
             allTaskResults.push(taskResult);
             throw new TaskError(`Critical task failure: ${errorMessage}`, task.type, { originalError: taskError });
           }
@@ -152,9 +155,7 @@ export class BrowserAutomation {
       const successCount = allTaskResults.filter((r) => r.success).length;
       const overallSuccess = allTaskResults.length > 0 && successCount === allTaskResults.length;
 
-      profileLogger.log(
-        `Dynamic task execution complete: ${successCount}/${allTaskResults.length} successes`,
-      );
+      profileLogger.log(`Tasks done: ${successCount}/${allTaskResults.length} OK`);
 
       await this.auditLogger.logStepEnd(
         'automation',
@@ -168,7 +169,7 @@ export class BrowserAutomation {
           totalTasks: allTaskResults.length,
         },
       );
-      profileLogger.log(`Automation run finished. Overall success: ${overallSuccess}`);
+      profileLogger.log(`Auto run finished. Success: ${overallSuccess}`);
 
       return {
         success: overallSuccess,
@@ -182,7 +183,7 @@ export class BrowserAutomation {
       };
     } catch (error) {
       const errorMessage = (error instanceof Error) ? error.message : 'Unknown automation error';
-      profileLogger.error(`Automation run failed: ${errorMessage}`);
+      profileLogger.error(`Auto run failed: ${errorMessage}`);
       await this.auditLogger.logStepEnd(
         'automation',
         'task_orchestration',

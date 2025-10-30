@@ -60,7 +60,7 @@ export class AuditLogger {
       await fs.mkdir(this.baseDir, { recursive: true });
       await fs.appendFile(this.auditLogFile, JSON.stringify(auditEntry) + '\n');
     } catch (error) {
-      console.error('Audit logging failed:', error);
+      console.error('Audit log failed:', error);
     }
   }
 

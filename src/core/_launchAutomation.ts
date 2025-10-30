@@ -5,7 +5,7 @@ import { ProfileManager } from './profile-manager';
 import { AutomationRunner } from './automation-runner';
 import { ConfigService } from './config';
 import { UnifiedLogger } from '../utils/unified-logger';
-import { IxBrowserAutomationOptions, AutomationRunResult, Summary } from '../types/core';
+import { IxBrowserAutomationOptions, Summary } from '../types/core';
 import { ConfigurationError } from '../utils/errors';
 import { BrowserAutomation } from './_automation';
 
@@ -70,12 +70,12 @@ class IxBrowserAutomation {
    * @returns A promise that resolves with the results and summary of the parallel automation.
    */
   async runParallelAutomation(): Promise<{results: any[], summary: Summary}> {
-    this.logger.log('Starting parallel automation across all opened profiles.');
+    this.logger.log('Start parallel auto for all profiles.');
     try {
       const openedProfiles = await this.profileManager.getOpenedProfilesLazy();
       return await this.automationRunner.runParallelAutomation(openedProfiles);
     } catch (error) {
-      this.logger.error(`Parallel automation failed: ${(error as Error).message}`);
+      this.logger.error(`Parallel auto failed: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -84,7 +84,7 @@ class IxBrowserAutomation {
    * Cleans up resources and closes all browser connections.
    */
   async cleanup(): Promise<void> {
-    this.logger.log('Cleaning up browser pool resources.');
+    this.logger.log('Cleanup browser pool resources.');
     await this.browserPool.closeAll();
   }
 }
@@ -104,15 +104,13 @@ async function main(): Promise<{results: any[], summary: Summary} | void> {
 
   try {
     await auditLogger.logStepStart('session', 'main_execution');
-    mainLogger.log('=== AUTOMATION SESSION STARTED ===');
+    mainLogger.log('=== AUTO SESSION STARTED ===');
 
     automation = new IxBrowserAutomation(configService, auditLogger);
     const { results, summary } = await automation.runParallelAutomation();
 
-    mainLogger.log(
-      `Automation completed. Success rate: ${summary.successRate}%`,
-    );
-    mainLogger.log('=== AUTOMATION SESSION COMPLETED ===');
+    mainLogger.log(`Auto complete. Success rate: ${summary.successRate}%`);
+    mainLogger.log('=== AUTO SESSION COMPLETED ===');
     await auditLogger.logStepEnd(
       'session',
       'main_execution',
@@ -125,7 +123,7 @@ async function main(): Promise<{results: any[], summary: Summary} | void> {
     return { results, summary };
   } catch (error) {
     const errorMessage = (error instanceof Error) ? error.message : 'Unknown error during main execution';
-    mainLogger.error(`Execution failed: ${errorMessage}`);
+    mainLogger.error(`Exec failed: ${errorMessage}`);
     await auditLogger.logStepEnd(
       'session',
       'main_execution',
@@ -150,7 +148,7 @@ async function main(): Promise<{results: any[], summary: Summary} | void> {
 // Run script or export for module use
 if (require.main === module) {
   main().catch((error) => {
-    console.error('Unhandled automation error:', error);
+    console.error('Unhandled auto error:', error);
     process.exit(1);
   });
 }
