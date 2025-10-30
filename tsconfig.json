@@ -23,7 +23,7 @@
     "test-licensing.ts",
     "licensing/**/*.ts",
     "licensing-master/**/*.ts",
-    "licensing/check-license.js"  ],
+    "licensing/check-license.js", "licensing/public-key.artifact"  ],
   "exclude": [
     "node_modules"
   ]
